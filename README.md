@@ -6,7 +6,7 @@ O painel web do CLYVO Elo, feito em **Spring Boot**, é publicado no **Azure Web
 
 | | |
 |---|---|
-| Aplicação | https://clyvo-elo-rm563230.azurewebsites.net |
+| Aplicação | https://clyvo-elo-devops-rm563230.azurewebsites.net |
 | Azure DevOps | [a preencher] |
 | Vídeo | [a preencher] |
 
@@ -137,7 +137,7 @@ As pipelines são montadas no **editor clássico** do Azure Pipelines: um **Buil
 |---|---|
 | Azure subscription | a assinatura, autorizada pelo botão **Authorize** |
 | App type | Web App on Linux |
-| App Service name | `clyvo-elo-rm563230` |
+| App Service name | `clyvo-elo-devops-rm563230` |
 | Package or folder | `$(System.DefaultWorkingDirectory)/**/*.jar` |
 | Startup command | `java -jar /home/site/wwwroot/app.jar` |
 | App settings | `-SPRING_DATASOURCE_URL "$(SPRING_DATASOURCE_URL)" -SPRING_DATASOURCE_USERNAME "$(SPRING_DATASOURCE_USERNAME)" -SPRING_DATASOURCE_PASSWORD "$(SPRING_DATASOURCE_PASSWORD)"` |
@@ -169,25 +169,26 @@ No [Portal do Azure](https://portal.azure.com), abra o **Cloud Shell** em modo *
 
 ```bash
 az account show
-git clone https://github.com/GabrielCabralmm/clyvo-elo-devops.git
-cd clyvo-elo-devops/scripts
+git clone https://github.com/GabrielCabralmm/Clyvo-elo-DevOps.git
+cd Clyvo-elo-DevOps/scripts
 chmod +x criar-recursos.sh
 ./criar-recursos.sh
 ```
 
-O script pede a senha do administrador do banco e cria, em ordem:
+O script registra os provedores usados, pede a senha do administrador do banco e cria, em ordem:
 
 | Recurso | Nome |
 |---|---|
-| Grupo de recursos | `rg-clyvo-elo` |
+| Grupo de recursos | `rg-clyvo-devops` |
 | Azure Database for PostgreSQL Flexible Server | `pg-clyvo-elo-rm563230` (usuário `clyvoadmin`) |
 | Banco de dados | `clyvoelo` |
-| Acesso ao banco | rede pública habilitada, com regra de firewall `acesso-publico` liberando todos os IPs |
-| Plano do Serviço de Aplicativo | `plan-clyvo-elo` (Linux, B1) |
-| Serviço de Aplicativo | `clyvo-elo-rm563230` (Java 21) |
-| Configurações adicionais | Always On, somente HTTPS, logs, comando de inicialização e porta |
+| Acesso ao banco | rede pública habilitada, com a regra de firewall `AllowAll` liberando todos os IPs |
+| Application Insights | `ai-clyvo-elo-devops` |
+| Plano do Serviço de Aplicativo | `clyvo-plan` (Linux, B1) |
+| Serviço de Aplicativo | `clyvo-elo-devops-rm563230` (Java 21) |
+| Configurações do Web App | Always On, somente HTTPS, comando de inicialização, porta, Application Insights e dados do banco |
 
-Para usar outra região, rode `export LOCAL=eastus2` antes do script. O padrão é `brazilsouth`.
+Para usar outra região, rode `export LOCATION=eastus2` antes do script. O padrão é `chilecentral`.
 
 ### 6.3 Criar o projeto no Azure DevOps
 
@@ -196,7 +197,7 @@ Para usar outra região, rode `export LOCAL=eastus2` antes do script. O padrão 
    - **Project name:** `Sprint 4 – Azure DevOps`
    - **Description:** `Projeto para entrega da Sprint 4 do professor <nome do professor>` e, nas linhas seguintes, `RM563230 - Gabriel Cabral Mendes Mariano - 2TDSPO` e `RM566063 - João Victor Santana dos Santos - 2TDSPX`
    - **Visibility:** Private · **Version control:** Git · **Work item process:** Scrum
-3. **Importar o código:** em Repos → Files → **Import repository**, escolha o tipo Git e a Clone URL `https://github.com/GabrielCabralmm/clyvo-elo-devops.git`.
+3. **Importar o código:** em Repos → Files → **Import repository**, escolha o tipo Git e a Clone URL `https://github.com/GabrielCabralmm/Clyvo-elo-DevOps.git`.
 4. **Convidar o professor:** em Organization settings → **Users** → **Add users**, coloque o e-mail do professor com **Access level: Basic** e adicione-o ao projeto `Sprint 4 – Azure DevOps` no grupo **Contributors**.
 
 ### 6.4 Criar o Build (CI)
@@ -221,7 +222,7 @@ Para usar outra região, rode `export LOCAL=eastus2` antes do script. O padrão 
 4. Clique no **raio** do artefato e ative o **Continuous deployment trigger**. Deixe o *Pull request trigger* desligado.
 5. No stage, clique em **1 job, 1 task**:
    - **Azure subscription:** escolha a assinatura e clique em **Authorize**
-   - **App type:** Web App on Linux · **App service name:** `clyvo-elo-rm563230`
+   - **App type:** Web App on Linux · **App service name:** `clyvo-elo-devops-rm563230`
    - **Agent job:** pool Azure Pipelines, `ubuntu-latest`
 6. Task **Deploy Azure App Service**:
    - **Package or folder:** `$(System.DefaultWorkingDirectory)/**/*.jar`
@@ -230,15 +231,15 @@ Para usar outra região, rode `export LOCAL=eastus2` antes do script. O padrão 
    - **Additional Deployment Options → Deployment method:** Zip Deploy, se a opção aparecer
 7. Aba **Variables** da Release: crie as mesmas três variáveis, com o cadeado na senha.
 8. **Save** e depois **Create release** → descrição `Deploy em Producao` → **Create**. Acompanhe os logs do stage até o **Succeeded**.
-9. Abra https://clyvo-elo-rm563230.azurewebsites.net. O primeiro acesso depois do deploy pode levar cerca de 1 minuto.
+9. Abra https://clyvo-elo-devops-rm563230.azurewebsites.net. O primeiro acesso depois do deploy pode levar cerca de 1 minuto.
 
 ### 6.6 Testar a esteira completa
 
 1. No computador, clone o repositório e configure o push para o GitHub e para o Azure Repos ao mesmo tempo:
    ```bash
-   git clone https://github.com/GabrielCabralmm/clyvo-elo-devops.git
-   cd clyvo-elo-devops
-   git remote set-url --add --push origin https://github.com/GabrielCabralmm/clyvo-elo-devops.git
+   git clone https://github.com/GabrielCabralmm/Clyvo-elo-DevOps.git
+   cd Clyvo-elo-DevOps
+   git remote set-url --add --push origin https://github.com/GabrielCabralmm/Clyvo-elo-DevOps.git
    git remote set-url --add --push origin <URL de clone do Azure Repos>
    ```
 2. Altere um texto visível, por exemplo o título da tela de login em `src/main/resources/templates/login.html`.

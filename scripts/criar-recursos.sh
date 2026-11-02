@@ -2,94 +2,134 @@
 set -e
 
 # Variáveis
-GRUPO="rg-clyvo-elo"
-LOCAL="${LOCAL:-brazilsouth}"
-PLANO="plan-clyvo-elo"
-WEBAPP="clyvo-elo-rm563230"
-SERVIDOR_BD="pg-clyvo-elo-rm563230"
-BANCO="clyvoelo"
-USUARIO_BD="clyvoadmin"
+RESOURCE_GROUP_NAME="rg-clyvo-devops"
+LOCATION="${LOCATION:-chilecentral}"
+WEBAPP_NAME="clyvo-elo-devops-rm563230"
+APP_SERVICE_PLAN="clyvo-plan"
+RUNTIME="JAVA:21-java21"
+APP_INSIGHTS_NAME="ai-clyvo-elo-devops"
+PG_SERVER_NAME="pg-clyvo-elo-rm563230"
+PG_DB_NAME="clyvoelo"
+PG_ADMIN_USER="clyvoadmin"
 
-if [ -z "$SENHA_BD" ]; then
-  read -s -p "Senha do administrador do PostgreSQL: " SENHA_BD
+if [ -z "$PG_ADMIN_PASSWORD" ]; then
+  read -s -p "Senha do administrador do PostgreSQL: " PG_ADMIN_PASSWORD
   echo
 fi
 
+# Provedores usados
+az provider register --namespace Microsoft.Web
+az provider register --namespace Microsoft.Insights
+az provider register --namespace Microsoft.OperationalInsights
+az provider register --namespace Microsoft.DBforPostgreSQL
+az extension add --name application-insights --upgrade --only-show-errors
+
 # Grupo de recursos
 az group create \
-  --name "$GRUPO" \
-  --location "$LOCAL"
+  --name $RESOURCE_GROUP_NAME \
+  --location "$LOCATION"
 
 # Banco de dados PostgreSQL (PaaS)
 az postgres flexible-server create \
-  --resource-group "$GRUPO" \
-  --name "$SERVIDOR_BD" \
-  --location "$LOCAL" \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --name $PG_SERVER_NAME \
+  --location "$LOCATION" \
   --tier Burstable \
   --sku-name Standard_B1ms \
   --storage-size 32 \
   --version 16 \
-  --admin-user "$USUARIO_BD" \
-  --admin-password "$SENHA_BD" \
+  --admin-user $PG_ADMIN_USER \
+  --admin-password "$PG_ADMIN_PASSWORD" \
   --public-access Enabled \
   --yes
 
 az postgres flexible-server db create \
-  --resource-group "$GRUPO" \
-  --server-name "$SERVIDOR_BD" \
-  --database-name "$BANCO"
+  --resource-group $RESOURCE_GROUP_NAME \
+  --server-name $PG_SERVER_NAME \
+  --database-name $PG_DB_NAME
 
 # Acesso público ao banco
 az postgres flexible-server firewall-rule create \
-  --resource-group "$GRUPO" \
-  --name "$SERVIDOR_BD" \
-  --rule-name acesso-publico \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --name $PG_SERVER_NAME \
+  --rule-name AllowAll \
   --start-ip-address 0.0.0.0 \
   --end-ip-address 255.255.255.255
 
+# Application Insights
+az monitor app-insights component create \
+  --app $APP_INSIGHTS_NAME \
+  --location "$LOCATION" \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --application-type web
+
 # Plano do Serviço de Aplicativo
 az appservice plan create \
-  --resource-group "$GRUPO" \
-  --name "$PLANO" \
-  --location "$LOCAL" \
-  --is-linux \
-  --sku B1
+  --name $APP_SERVICE_PLAN \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --location "$LOCATION" \
+  --sku B1 \
+  --is-linux
 
-# Serviço de Aplicativo (Web App Java 21)
+# Serviço de Aplicativo (Web App)
 az webapp create \
-  --resource-group "$GRUPO" \
-  --plan "$PLANO" \
-  --name "$WEBAPP" \
-  --runtime "JAVA:21-java21"
+  --name $WEBAPP_NAME \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --plan $APP_SERVICE_PLAN \
+  --runtime "$RUNTIME"
 
-# Configurações adicionais
+az resource update \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --namespace Microsoft.Web \
+  --resource-type basicPublishingCredentialsPolicies \
+  --name scm \
+  --parent sites/$WEBAPP_NAME \
+  --set properties.allow=true
+
 az webapp config set \
-  --resource-group "$GRUPO" \
-  --name "$WEBAPP" \
+  --name $WEBAPP_NAME \
+  --resource-group $RESOURCE_GROUP_NAME \
   --always-on true \
   --startup-file "java -jar /home/site/wwwroot/app.jar"
 
 az webapp update \
-  --resource-group "$GRUPO" \
-  --name "$WEBAPP" \
+  --name $WEBAPP_NAME \
+  --resource-group $RESOURCE_GROUP_NAME \
   --https-only true
 
-az webapp log config \
-  --resource-group "$GRUPO" \
-  --name "$WEBAPP" \
-  --application-logging filesystem \
-  --docker-container-logging filesystem \
-  --level information
+# Configurações do Web App
+CONNECTION_STRING=$(az monitor app-insights component show \
+  --app $APP_INSIGHTS_NAME \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --query connectionString \
+  --output tsv)
 
 az webapp config appsettings set \
-  --resource-group "$GRUPO" \
-  --name "$WEBAPP" \
-  --settings SERVER_PORT=80 \
-  --output none
+  --name "$WEBAPP_NAME" \
+  --resource-group "$RESOURCE_GROUP_NAME" \
+  --output none \
+  --settings \
+    APPLICATIONINSIGHTS_CONNECTION_STRING="$CONNECTION_STRING" \
+    ApplicationInsightsAgent_EXTENSION_VERSION="~3" \
+    XDT_MicrosoftApplicationInsights_Mode="Recommended" \
+    XDT_MicrosoftApplicationInsights_PreemptSdk="1" \
+    SERVER_PORT="80" \
+    SPRING_DATASOURCE_USERNAME="$PG_ADMIN_USER" \
+    SPRING_DATASOURCE_PASSWORD="$PG_ADMIN_PASSWORD" \
+    SPRING_DATASOURCE_URL="jdbc:postgresql://$PG_SERVER_NAME.postgres.database.azure.com:5432/$PG_DB_NAME?sslmode=require"
+
+az webapp restart \
+  --name $WEBAPP_NAME \
+  --resource-group $RESOURCE_GROUP_NAME
+
+az monitor app-insights component connect-webapp \
+  --app $APP_INSIGHTS_NAME \
+  --web-app $WEBAPP_NAME \
+  --resource-group $RESOURCE_GROUP_NAME
 
 # Resumo
 echo
-echo "Web App:     https://$WEBAPP.azurewebsites.net"
-echo "Servidor BD: $SERVIDOR_BD.postgres.database.azure.com"
-echo "JDBC URL:    jdbc:postgresql://$SERVIDOR_BD.postgres.database.azure.com:5432/$BANCO?sslmode=require"
-echo "Usuário BD:  $USUARIO_BD"
+echo "Web App:         https://$WEBAPP_NAME.azurewebsites.net"
+echo "Servidor do BD:  $PG_SERVER_NAME.postgres.database.azure.com"
+echo "JDBC URL:        jdbc:postgresql://$PG_SERVER_NAME.postgres.database.azure.com:5432/$PG_DB_NAME?sslmode=require"
+echo "Usuário do BD:   $PG_ADMIN_USER"

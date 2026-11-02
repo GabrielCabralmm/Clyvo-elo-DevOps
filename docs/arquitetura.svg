@@ -73,20 +73,20 @@
 
   <rect x="580" y="450" width="980" height="420" rx="16" fill="#F0F9FF" stroke="#0078D4" stroke-width="2" stroke-dasharray="8 6"/>
   <text x="604" y="482" font-size="20" font-weight="700" fill="#0B4A8B">Microsoft Azure</text>
-  <text x="772" y="482" font-size="14" fill="#1E3A5F">Assinatura · Grupo de recursos rg-clyvo-elo</text>
+  <text x="772" y="482" font-size="14" fill="#1E3A5F">Assinatura · Grupo de recursos rg-clyvo-devops</text>
 
   <rect x="604" y="506" width="430" height="250" rx="12" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.5"/>
-  <text x="624" y="534" font-size="14" font-weight="600" fill="#1E3A5F">Plano do Serviço de Aplicativo · plan-clyvo-elo (Linux B1)</text>
+  <text x="624" y="534" font-size="14" font-weight="600" fill="#1E3A5F">Plano do Serviço de Aplicativo · clyvo-plan (Linux B1)</text>
   <rect x="624" y="550" width="390" height="186" rx="10" fill="#E0F2FE" stroke="#0369A1"/>
   <rect x="644" y="572" width="44" height="34" rx="4" fill="#0078D4"/>
   <path d="M644,582 h44" stroke="#FFFFFF" stroke-width="2"/>
   <circle cx="651" cy="577" r="2" fill="#FFFFFF"/><circle cx="658" cy="577" r="2" fill="#FFFFFF"/>
-  <text x="702" y="586" font-size="17" font-weight="700" fill="#0B4A8B">Web App · clyvo-elo-rm563230</text>
+  <text x="702" y="586" font-size="17" font-weight="700" fill="#0B4A8B">Web App · clyvo-elo-devops-rm563230</text>
   <text x="702" y="606" font-size="13" fill="#1E3A5F">Java 21 (Java SE) · sem container</text>
   <text x="644" y="640" font-size="14" fill="#111827">• Spring Boot 4 + Thymeleaf + Spring Security</text>
   <text x="644" y="664" font-size="14" fill="#111827">• Perfis: Administrador, Veterinário, Tutor</text>
   <text x="644" y="688" font-size="14" fill="#111827">• Flyway cria e versiona as tabelas</text>
-  <text x="644" y="712" font-size="14" fill="#111827">• HTTPS · Always On · logs no App Service</text>
+  <text x="644" y="712" font-size="14" fill="#111827">• HTTPS · Always On · Application Insights</text>
 
   <rect x="1180" y="506" width="356" height="250" rx="12" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.5"/>
   <ellipse cx="1226" cy="550" rx="26" ry="9" fill="#336791"/>
@@ -105,7 +105,7 @@
   <rect x="624" y="798" width="40" height="32" rx="4" fill="#1F2937"/>
   <path d="M632,808 l8,6 l-8,6 M644,822 h12" stroke="#FFFFFF" stroke-width="2" fill="none"/>
   <text x="680" y="810" font-size="16" font-weight="700" fill="#111827">Azure CLI (Cloud Shell) · scripts/criar-recursos.sh</text>
-  <text x="680" y="832" font-size="14" fill="#374151">cria o grupo de recursos, o PostgreSQL, o banco, o firewall, o plano, o Web App e as configurações</text>
+  <text x="680" y="832" font-size="14" fill="#374151">cria o grupo de recursos, o PostgreSQL, o firewall, o Application Insights, o plano, o Web App e as configurações</text>
 
   <rect x="40" y="560" width="250" height="250" rx="14" fill="#ECF6F0" stroke="#3F8F68" stroke-width="2"/>
   <text x="60" y="592" font-size="18" font-weight="700" fill="#111827">Usuários finais</text>
