@@ -198,7 +198,7 @@ A região usada é `chilecentral`. Para usar outra, troque a variável `LOCATION
 1. Em **Organization settings → Pipelines → Settings**, deixe **desligadas** as opções *Disable creation of classic build pipelines* e *Disable creation of classic release pipelines*.
 2. Em **New project**:
    - **Project name:** `Sprint 4 – Azure DevOps`
-   - **Description:** `Projeto para entrega da Sprint 4 do professor <nome do professor>` e, nas linhas seguintes, `RM563230 - Gabriel Cabral Mendes Mariano - 2TDSPO` e `RM566063 - João Victor Santana dos Santos - 2TDSPX`
+   - **Description:** `Projeto para entrega da Sprint 4 do professor Karlos Miguel Silva Lima` e, nas linhas seguintes, `RM563230 - Gabriel Cabral Mendes Mariano - 2TDSPO` e `RM566063 - João Victor Santana dos Santos - 2TDSPX`
    - **Visibility:** Private · **Version control:** Git · **Work item process:** Scrum
 3. **Importar o código:** em Repos → Files → **Import repository**, escolha o tipo Git e a Clone URL `https://github.com/GabrielCabralmm/Clyvo-elo-DevOps.git`.
 4. **Convidar o professor:** em Organization settings → **Users** → **Add users**, coloque o e-mail do professor com **Access level: Basic** e adicione-o ao projeto `Sprint 4 – Azure DevOps` no grupo **Contributors**.
