@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Meus pets')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('inicio')}"></header>
+<main class="pagina">
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <section class="boas-vindas">
+        <div>
+            <h1>Olá, <span th:text="${usuarioLogado.primeiroNome}">Gabriel</span></h1>
+            <p>Acompanhe a agenda de cuidados e as orientações da equipe veterinária.</p>
+        </div>
+    </section>
+
+    <div class="grade-3" th:unless="${#lists.isEmpty(pets)}">
+        <article class="cartao pet-card" th:each="resumo : ${pets}">
+            <div class="pet-topo">
+                <span class="pet-icone" th:text="${#strings.substring(resumo.pet.nome, 0, 1)}">T</span>
+                <div>
+                    <h2 th:text="${resumo.pet.nome}">Toby</h2>
+                    <span class="texto-secundario" th:text="${resumo.pet.especie.descricao} + (${resumo.pet.raca != null} ? ' · ' + ${resumo.pet.raca} : '') + ' · ' + ${resumo.pet.idadeFormatada}"></span>
+                </div>
+            </div>
+
+            <div>
+                <div class="texto-secundario">Próximo cuidado</div>
+                <div th:if="${resumo.proximoEvento != null}">
+                    <span class="texto-forte" th:text="${resumo.proximoEvento.tipoEvento.descricao}">Vacina</span>
+                    <span th:text="' em ' + ${#temporals.format(resumo.proximoEvento.dataEvento, 'dd/MM/yyyy')}"></span>
+                    <span th:replace="~{fragments/layout :: situacaoEvento(${resumo.proximoEvento})}"></span>
+                </div>
+                <div th:if="${resumo.proximoEvento == null}" class="texto-forte">Nenhum cuidado agendado</div>
+            </div>
+
+            <div class="pet-rodape">
+                <span class="etiqueta" th:classappend="${resumo.alertasAtivos > 0} ? 'etq-ABERTO' : 'etq-RESOLVIDO'"
+                      th:text="${resumo.alertasAtivos > 0} ? ${resumo.alertasAtivos} + ' alerta(s) ativo(s)' : 'Sem alertas ativos'"></span>
+                <a th:href="@{/minha-area/pets/{id}(id=${resumo.pet.id})}" class="botao botao-pequeno">Acompanhar</a>
+            </div>
+        </article>
+    </div>
+
+    <div class="cartao vazio" th:if="${#lists.isEmpty(pets)}">
+        <strong>Nenhum pet vinculado à sua conta</strong>
+        Peça para a recepção da clínica vincular o seu pet ao seu cadastro.
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

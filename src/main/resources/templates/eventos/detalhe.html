@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Evento clínico')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('eventos')}"></header>
+<main class="pagina">
+    <div class="migalha"><a th:href="@{/eventos}">Eventos clínicos</a> / <span th:text="${evento.pet.nome}"></span></div>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1 th:text="${evento.tipoEvento.descricao} + ' · ' + ${evento.pet.nome}">Vacina · Toby</h1>
+            <p class="subtitulo" th:text="'Tutor: ' + ${evento.pet.tutor.nome} + (${evento.pet.tutor.telefone != null} ? ' · ' + ${evento.pet.tutor.telefone} : '')"></p>
+        </div>
+        <span th:replace="~{fragments/layout :: situacaoEvento(${evento})}"></span>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="grade-lateral">
+        <div>
+            <section class="cartao">
+                <dl class="dados">
+                    <div><dt>Data agendada</dt><dd th:text="${#temporals.format(evento.dataEvento, 'dd/MM/yyyy')}"></dd></div>
+                    <div><dt>Paciente</dt><dd th:text="${evento.pet.especie.descricao} + ' · ' + ${evento.pet.idadeFormatada}"></dd></div>
+                    <div><dt>Peso</dt><dd th:text="${evento.pet.pesoFormatado}"></dd></div>
+                </dl>
+                <div class="destaque">
+                    <span class="texto-secundario">Descrição</span>
+                    <p th:text="${evento.descricao}" style="margin:2px 0 0;"></p>
+                </div>
+            </section>
+
+            <section class="cartao" th:if="${evento.estaConcluido()}">
+                <div class="cartao-titulo"><h2>Atendimento registrado</h2></div>
+                <p th:text="${evento.observacaoAtendimento}"></p>
+                <p class="texto-secundario"
+                   th:text="'Por ' + ${evento.funcionarioAtendeu != null ? evento.funcionarioAtendeu.nome : 'equipe'} + (${evento.dataAtendimento != null} ? ' em ' + ${#temporals.format(evento.dataAtendimento, 'dd/MM/yyyy')} : '')"></p>
+            </section>
+
+            <section class="cartao" th:unless="${evento.estaConcluido()}">
+                <div class="cartao-titulo"><h2>Registrar atendimento</h2></div>
+                <form th:action="@{/eventos/{id}/atender(id=${evento.id})}" th:object="${atendimento}" method="post" novalidate>
+                    <div class="form-grupo">
+                        <label for="texto">O que foi feito e orientações para o tutor</label>
+                        <textarea th:field="*{texto}" th:errorclass="campo-com-erro" maxlength="500"
+                                  placeholder="Ex.: pontos retirados, cicatrização boa. Manter o colar por mais 3 dias."></textarea>
+                        <div class="erro-campo" th:if="${#fields.hasErrors('texto')}" th:errors="*{texto}"></div>
+                        <div class="ajuda">O tutor vê esta orientação na área dele.</div>
+                    </div>
+                    <button type="submit" class="botao">Concluir atendimento</button>
+                </form>
+            </section>
+
+            <section class="cartao" th:unless="${evento.estaConcluido()}">
+                <div class="cartao-titulo"><h2>Reagendar</h2></div>
+                <form th:action="@{/eventos/{id}/reagendar(id=${evento.id})}" method="post" class="acoes">
+                    <input type="date" name="novaData" required style="max-width:220px;"
+                           th:attr="min=${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                    <button type="submit" class="botao-secundario">Salvar nova data</button>
+                </form>
+            </section>
+        </div>
+
+        <section class="cartao">
+            <div class="cartao-titulo">
+                <h2 th:text="'Histórico de ' + ${evento.pet.nome}">Histórico</h2>
+                <a th:href="@{/eventos/novo(idPet=${evento.pet.id})}">Agendar outro</a>
+            </div>
+            <div th:replace="~{fragments/layout :: linhaTempoEventos(${historico})}"></div>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

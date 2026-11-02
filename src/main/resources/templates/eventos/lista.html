@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Eventos clínicos')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('eventos')}"></header>
+<main class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Eventos clínicos</h1>
+            <p class="subtitulo">Vacinas, retornos, exames e medicações de todos os pacientes</p>
+        </div>
+        <a th:href="@{/eventos/novo}" class="botao">Agendar evento</a>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="abas">
+        <a th:each="s : ${statusEvento}" th:href="@{/eventos(status=${s})}" class="aba"
+           th:classappend="${filtro.status == s} ? 'ativa'" th:text="${s.descricao}"></a>
+        <a th:href="@{/eventos(status='')}" class="aba" th:classappend="${filtro.status == null} ? 'ativa'">Todos</a>
+    </div>
+
+    <form class="filtros" th:action="@{/eventos}" th:object="${filtro}" method="get">
+        <input type="hidden" th:field="*{status}">
+        <div class="form-grupo">
+            <label for="idPet">Pet</label>
+            <select th:field="*{idPet}">
+                <option value="">Todos</option>
+                <option th:each="p : ${pets}" th:value="${p.id}" th:text="${p.nome} + ' (' + ${p.tutor.nome} + ')'"></option>
+            </select>
+        </div>
+        <div class="form-grupo">
+            <label for="tipo">Tipo</label>
+            <select th:field="*{tipo}">
+                <option value="">Todos</option>
+                <option th:each="t : ${tiposEvento}" th:value="${t}" th:text="${t.descricao}"></option>
+            </select>
+        </div>
+        <div class="form-grupo">
+            <label for="inicio">De</label>
+            <input type="date" th:field="*{inicio}">
+        </div>
+        <div class="form-grupo">
+            <label for="fim">Até</label>
+            <input type="date" th:field="*{fim}">
+        </div>
+        <button type="submit" class="botao-secundario">Filtrar</button>
+        <a th:href="@{/eventos(status=${filtro.status})}" class="botao-fantasma">Limpar</a>
+    </form>
+
+    <div class="cartao cartao-sem-espaco tabela-rolavel">
+        <table th:unless="${#lists.isEmpty(eventos)}">
+            <thead>
+            <tr><th>Data</th><th>Pet</th><th>Tipo</th><th>Descrição</th><th>Situação</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="evento : ${eventos}">
+                <td class="texto-forte" th:text="${#temporals.format(evento.dataEvento, 'dd/MM/yyyy')}"></td>
+                <td>
+                    <span class="texto-forte" th:text="${evento.pet.nome}"></span>
+                    <div class="texto-secundario" th:text="${evento.pet.tutor.nome}"></div>
+                </td>
+                <td th:text="${evento.tipoEvento.descricao}"></td>
+                <td class="texto-secundario" th:text="${evento.descricao}"></td>
+                <td><span th:replace="~{fragments/layout :: situacaoEvento(${evento})}"></span></td>
+                <td class="celula-acoes">
+                    <a th:href="@{/eventos/{id}(id=${evento.id})}" class="botao-secundario botao-pequeno"
+                       th:text="${evento.estaConcluido()} ? 'Ver' : 'Atender'">Atender</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="vazio" th:if="${#lists.isEmpty(eventos)}"><strong>Nenhum evento encontrado</strong>Tudo em dia com os filtros escolhidos.</div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

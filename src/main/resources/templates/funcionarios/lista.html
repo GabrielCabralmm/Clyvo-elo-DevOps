@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Equipe')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('equipe')}"></header>
+<main class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Equipe</h1>
+            <p class="subtitulo">Administradores e veterinários com acesso ao painel</p>
+        </div>
+        <a th:href="@{/funcionarios/novo}" class="botao">Novo funcionário</a>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="cartao cartao-sem-espaco tabela-rolavel">
+        <table>
+            <thead>
+            <tr><th>Nome</th><th>Perfil</th><th>Na equipe desde</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="funcionario : ${funcionarios}">
+                <td>
+                    <span class="texto-forte" th:text="${funcionario.nome}"></span>
+                    <div class="texto-secundario" th:text="${funcionario.email}"></div>
+                </td>
+                <td><span class="etiqueta" th:text="${funcionario.perfil.descricao}"></span></td>
+                <td th:text="${funcionario.dataCadastro != null} ? ${#temporals.format(funcionario.dataCadastro, 'dd/MM/yyyy')} : '—'"></td>
+                <td class="celula-acoes">
+                    <a th:href="@{/funcionarios/{id}/editar(id=${funcionario.id})}" class="botao-secundario botao-pequeno">Editar</a>
+                    <form th:if="${funcionario.id != usuarioLogado.id}" th:action="@{/funcionarios/{id}/excluir(id=${funcionario.id})}" method="post"
+                          th:attr="onsubmit=|return confirm('Remover ${funcionario.nome} da equipe?')|">
+                        <button type="submit" class="botao-perigo botao-pequeno">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Agendar evento')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('eventos')}"></header>
+<main class="pagina">
+    <div class="migalha"><a th:href="@{/eventos}">Eventos clínicos</a> / Agendar</div>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Agendar evento clínico</h1>
+            <p class="subtitulo">O evento aparece na agenda da equipe e na área do tutor</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="cartao cartao-form">
+        <form th:action="@{/eventos/novo}" th:object="${form}" method="post" novalidate>
+            <div class="form-grupo">
+                <label for="idPet">Pet</label>
+                <select th:field="*{idPet}" th:errorclass="campo-com-erro">
+                    <option value="">Selecione o pet</option>
+                    <option th:each="p : ${pets}" th:value="${p.id}" th:text="${p.nome} + ' · ' + ${p.especie.descricao} + ' · tutor ' + ${p.tutor.nome}"></option>
+                </select>
+                <div class="erro-campo" th:if="${#fields.hasErrors('idPet')}" th:errors="*{idPet}"></div>
+            </div>
+
+            <div class="form-linha">
+                <div class="form-grupo">
+                    <label for="tipo">Tipo</label>
+                    <select th:field="*{tipo}" th:errorclass="campo-com-erro">
+                        <option value="">Selecione</option>
+                        <option th:each="t : ${tiposEvento}" th:value="${t}" th:text="${t.descricao}"></option>
+                    </select>
+                    <div class="erro-campo" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
+                </div>
+                <div class="form-grupo">
+                    <label for="data">Data</label>
+                    <input type="date" th:field="*{data}" th:errorclass="campo-com-erro">
+                    <div class="erro-campo" th:if="${#fields.hasErrors('data')}" th:errors="*{data}"></div>
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label for="descricao">O que será feito</label>
+                <textarea th:field="*{descricao}" th:errorclass="campo-com-erro" maxlength="500" placeholder="Ex.: retorno para retirada dos pontos"></textarea>
+                <div class="erro-campo" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}"></div>
+            </div>
+
+            <div class="botoes-form">
+                <button type="submit" class="botao">Agendar</button>
+                <a th:href="@{/eventos}" class="botao-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Entrar')}"></head>
+<body>
+<div class="login-fundo">
+    <section class="login-lado">
+        <div class="marca">
+            <span class="marca-simbolo">C</span>
+            <span>CLYVO <strong>Elo</strong></span>
+        </div>
+        <div>
+            <h1>O cuidado do pet continua depois da consulta.</h1>
+            <p>O painel conecta a clínica, a equipe veterinária e o tutor para que nenhuma vacina, retorno ou sinal de alerta passe despercebido.</p>
+        </div>
+        <div class="login-perfis">
+            <div class="login-perfil"><strong>Administrador</strong>Organiza pets, tutores e equipe e acompanha os indicadores da clínica.</div>
+            <div class="login-perfil"><strong>Veterinário</strong>Agenda e atende eventos clínicos e acompanha os alertas até a resolução.</div>
+            <div class="login-perfil"><strong>Tutor</strong>Vê a agenda e as orientações do pet e relata sintomas para a equipe.</div>
+        </div>
+    </section>
+
+    <section class="login-formulario">
+        <div class="login-cartao cartao">
+            <h2>Entrar no painel</h2>
+            <p class="subtitulo" style="margin-bottom:20px;">Use o email e a senha cadastrados na clínica.</p>
+
+            <div class="aviso aviso-erro" th:if="${param.erro}">Email ou senha inválidos.</div>
+            <div class="aviso aviso-sucesso" th:if="${param.saiu}">Você saiu do painel.</div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-grupo">
+                    <label for="username">Email</label>
+                    <input type="email" id="username" name="username" autocomplete="username" required autofocus>
+                </div>
+                <div class="form-grupo">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="botao botao-largo">Entrar</button>
+            </form>
+        </div>
+    </section>
+</div>
+</body>
+</html>

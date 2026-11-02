@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tutores')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('tutores')}"></header>
+<main class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Tutores</h1>
+            <p class="subtitulo">Responsáveis pelos pets, com acesso à área do tutor no painel</p>
+        </div>
+        <a th:href="@{/tutores/novo}" class="botao">Novo tutor</a>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="cartao cartao-sem-espaco tabela-rolavel">
+        <table th:unless="${#lists.isEmpty(tutores)}">
+            <thead>
+            <tr><th>Tutor</th><th>Telefone</th><th>Pets</th><th>Cliente desde</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="tutor : ${tutores}">
+                <td>
+                    <a class="link-linha" th:href="@{/tutores/{id}(id=${tutor.id})}" th:text="${tutor.nome}"></a>
+                    <div class="texto-secundario" th:text="${tutor.email}"></div>
+                </td>
+                <td th:text="${tutor.telefone != null} ? ${tutor.telefone} : '—'"></td>
+                <td th:text="${petsPorTutor.getOrDefault(tutor.id, 0L)}"></td>
+                <td th:text="${tutor.dataCadastro != null} ? ${#temporals.format(tutor.dataCadastro, 'dd/MM/yyyy')} : '—'"></td>
+                <td class="celula-acoes">
+                    <a th:href="@{/tutores/{id}/editar(id=${tutor.id})}" class="botao-secundario botao-pequeno">Editar</a>
+                    <form th:action="@{/tutores/{id}/excluir(id=${tutor.id})}" method="post"
+                          th:attr="onsubmit=|return confirm('Excluir o tutor ${tutor.nome}?')|">
+                        <button type="submit" class="botao-perigo botao-pequeno">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="vazio" th:if="${#lists.isEmpty(tutores)}"><strong>Nenhum tutor cadastrado</strong></div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

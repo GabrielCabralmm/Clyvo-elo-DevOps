@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ecossistema')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('ecossistema')}"></header>
+<main class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Ecossistema CLYVO Elo</h1>
+            <p class="subtitulo">Como o painel se conecta com as outras partes da solução</p>
+        </div>
+    </div>
+
+    <section class="cartao">
+        <div class="cartao-titulo"><h2>Serviços conectados</h2></div>
+        <ul class="lista-simples" id="servicos">
+            <li>
+                <div class="item-principal">
+                    <span class="texto-forte">Painel da Clínica (Java)</span>
+                    <span class="texto-secundario">Esta aplicação</span>
+                </div>
+                <span class="status-servico"><span class="ponto online"></span>Online</span>
+            </li>
+            <li data-servico>
+                <div class="item-principal">
+                    <a th:href="${urlApiDotnet} + '/swagger'" target="_blank" rel="noopener">API .NET (app do tutor)</a>
+                    <span class="texto-secundario" th:text="${urlApiDotnet}"></span>
+                </div>
+                <span class="status-servico" data-status><span class="ponto"></span>Verificando...</span>
+            </li>
+        </ul>
+    </section>
+
+    <div class="grade-3 espaco-acima">
+        <article class="cartao disciplina">
+            <span class="etiqueta">Java Advanced</span>
+            <h3>Painel da Clínica</h3>
+            <p>Spring Boot com Thymeleaf, Spring Security com três perfis e Flyway versionando o banco. É onde a clínica agenda, atende e acompanha.</p>
+        </article>
+        <article class="cartao disciplina">
+            <span class="etiqueta">Advanced Business Development with .NET</span>
+            <h3>API do app do tutor</h3>
+            <p>API REST em Clean Architecture com JWT, HATEOAS, Oracle e MongoDB, consumida pelo aplicativo mobile.</p>
+        </article>
+        <article class="cartao disciplina">
+            <span class="etiqueta">Mobile Application Development</span>
+            <h3>App do tutor</h3>
+            <p>Aplicativo em que o tutor acompanha o pet no dia a dia, consumindo a API .NET.</p>
+            <a th:href="${urlAppMobile}" target="_blank" rel="noopener">Repositório do app</a>
+        </article>
+        <article class="cartao disciplina">
+            <span class="etiqueta">Mastering Relational and Non-Relational Database</span>
+            <h3>Banco Oracle e MongoDB</h3>
+            <p>Modelagem relacional, procedures, funções, triggers e pacotes no Oracle, além das mensagens de acompanhamento no MongoDB.</p>
+        </article>
+        <article class="cartao disciplina">
+            <span class="etiqueta">Disruptive Architectures: IoT, IoB &amp; Generative IA</span>
+            <h3>Sensores nos potes</h3>
+            <p>Os sensores de água, ração e clima da casa geram os alertas de origem "Sensor IoT" que a equipe acompanha neste painel.</p>
+        </article>
+        <article class="cartao disciplina">
+            <span class="etiqueta">DevOps Tools &amp; Cloud Computing</span>
+            <h3>Deploy e CI/CD</h3>
+            <p>Esteiras de CI/CD que compilam e publicam a solução na nuvem junto com o banco de dados.</p>
+        </article>
+        <article class="cartao disciplina">
+            <span class="etiqueta">Compliance, Quality Assurance &amp; Tests</span>
+            <h3>Qualidade</h3>
+            <p>Backlog, plano de testes manuais no Azure Boards e testes automatizados dos fluxos principais.</p>
+        </article>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+
+<script th:inline="javascript">
+    fetch(/*[[@{/ecossistema/status}]]*/ '/ecossistema/status')
+        .then(resposta => resposta.json())
+        .then(servicos => {
+            const alvo = document.querySelector('[data-status]');
+            const servico = servicos[0];
+            alvo.innerHTML = '<span class="ponto ' + (servico.online ? 'online' : 'offline') + '"></span>'
+                + (servico.online ? 'Online' : servico.detalhe);
+        })
+        .catch(() => {
+            document.querySelector('[data-status]').innerHTML = '<span class="ponto offline"></span>Não foi possível verificar';
+        });
+</script>
+</body>
+</html>

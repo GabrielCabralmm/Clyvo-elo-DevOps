@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${tutor.nome})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('tutores')}"></header>
+<main class="pagina">
+    <div class="migalha"><a th:href="@{/tutores}">Tutores</a> / <span th:text="${tutor.nome}"></span></div>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1 th:text="${tutor.nome}">Tutor</h1>
+            <p class="subtitulo" th:text="${tutor.email}"></p>
+        </div>
+        <div class="acoes">
+            <a th:href="@{/tutores/{id}/editar(id=${tutor.id})}" class="botao-secundario">Editar</a>
+            <a th:href="@{/pets/novo(idTutor=${tutor.id})}" class="botao">Cadastrar pet</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <section class="cartao">
+        <dl class="dados">
+            <div><dt>Telefone</dt><dd th:text="${tutor.telefone != null} ? ${tutor.telefone} : 'Não informado'"></dd></div>
+            <div><dt>Cliente desde</dt><dd th:text="${tutor.dataCadastro != null} ? ${#temporals.format(tutor.dataCadastro, 'dd/MM/yyyy')} : '—'"></dd></div>
+            <div><dt>Pets</dt><dd th:text="${#lists.size(pets)}"></dd></div>
+        </dl>
+    </section>
+
+    <section class="cartao">
+        <div class="cartao-titulo"><h2>Pets do tutor</h2></div>
+        <ul class="lista-simples" th:unless="${#lists.isEmpty(pets)}">
+            <li th:each="pet : ${pets}">
+                <div class="item-principal">
+                    <a th:href="@{/pets/{id}(id=${pet.id})}" th:text="${pet.nome}"></a>
+                    <span class="texto-secundario" th:text="${pet.especie.descricao} + ' · ' + ${pet.idadeFormatada}"></span>
+                </div>
+                <a th:href="@{/pets/{id}(id=${pet.id})}" class="botao-secundario botao-pequeno">Ver histórico</a>
+            </li>
+        </ul>
+        <div class="vazio" th:if="${#lists.isEmpty(pets)}">Nenhum pet vinculado a este tutor.</div>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

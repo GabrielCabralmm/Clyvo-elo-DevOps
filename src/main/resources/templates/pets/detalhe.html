@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pet.nome})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('pets')}"></header>
+<main class="pagina">
+    <div class="migalha"><a th:href="@{/pets}">Pets</a> / <span th:text="${pet.nome}"></span></div>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1 th:text="${pet.nome}">Toby</h1>
+            <p class="subtitulo" th:text="${pet.especie.descricao} + (${pet.raca != null} ? ' · ' + ${pet.raca} : '')"></p>
+        </div>
+        <div class="acoes">
+            <a th:href="@{/pets/{id}/editar(id=${pet.id})}" class="botao-secundario">Editar</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <section class="cartao">
+        <dl class="dados">
+            <div><dt>Tutor</dt><dd><a th:href="@{/tutores/{id}(id=${pet.tutor.id})}" th:text="${pet.tutor.nome}"></a></dd></div>
+            <div><dt>Contato</dt><dd th:text="${pet.tutor.telefone != null} ? ${pet.tutor.telefone} : ${pet.tutor.email}"></dd></div>
+            <div><dt>Idade</dt><dd th:text="${pet.idadeFormatada}"></dd></div>
+            <div><dt>Peso</dt><dd th:text="${pet.pesoFormatado}"></dd></div>
+        </dl>
+    </section>
+
+    <div class="grade-2 espaco-acima">
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Histórico de eventos clínicos</h2></div>
+            <div th:replace="~{fragments/layout :: linhaTempoEventos(${eventos})}"></div>
+        </section>
+
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Alertas</h2></div>
+            <div th:replace="~{fragments/layout :: historicoAlertas(${alertas})}"></div>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

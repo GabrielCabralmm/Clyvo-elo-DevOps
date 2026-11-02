@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Alerta')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('alertas')}"></header>
+<main class="pagina">
+    <div class="migalha"><a th:href="@{/alertas}">Alertas</a> / <span th:text="${alerta.pet.nome}"></span></div>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1 th:text="'Alerta de ' + ${alerta.pet.nome}">Alerta</h1>
+            <p class="subtitulo" th:text="'Tutor: ' + ${alerta.pet.tutor.nome} + (${alerta.pet.tutor.telefone != null} ? ' · ' + ${alerta.pet.tutor.telefone} : '')"></p>
+        </div>
+        <div class="acoes">
+            <span th:replace="~{fragments/layout :: prioridade(${alerta})}"></span>
+            <span th:replace="~{fragments/layout :: statusAlerta(${alerta})}"></span>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="grade-lateral">
+        <div>
+            <section class="cartao">
+                <p class="texto-forte" style="font-size:16px; margin-top:0;" th:text="${alerta.descricao}"></p>
+                <dl class="dados">
+                    <div><dt>Origem</dt><dd th:text="${alerta.origem.descricao}"></dd></div>
+                    <div><dt>Aberto em</dt><dd th:text="${#temporals.format(alerta.dataCriacao, 'dd/MM/yyyy')}"></dd></div>
+                    <div><dt>Responsável</dt><dd th:text="${alerta.responsavel != null} ? ${alerta.responsavel.nome} : 'Ninguém ainda'"></dd></div>
+                    <div><dt th:text="${alerta.estaResolvido()} ? 'Tempo até resolver' : 'Tempo em aberto'"></dt>
+                        <dd th:text="${alerta.diasEmAberto} + ' dia(s)'"></dd></div>
+                </dl>
+                <div class="destaque" th:if="${alerta.estaResolvido()}">
+                    <span class="texto-secundario" th:text="'Resolução por ' + ${alerta.funcionarioResolveu != null ? alerta.funcionarioResolveu.nome : 'equipe'}"></span>
+                    <p th:text="${alerta.notaResolucao}" style="margin:2px 0 0;"></p>
+                </div>
+                <form th:if="${alerta.responsavel == null and !alerta.estaResolvido()}" th:action="@{/alertas/{id}/assumir(id=${alerta.id})}" method="post" style="margin-top:16px;">
+                    <button type="submit" class="botao">Assumir este alerta</button>
+                </form>
+            </section>
+
+            <section class="cartao" th:unless="${alerta.estaResolvido()}">
+                <div class="cartao-titulo"><h2>Registrar acompanhamento</h2></div>
+                <form th:action="@{/alertas/{id}/anotar(id=${alerta.id})}" th:object="${anotacao}" method="post" novalidate>
+                    <div class="form-grupo">
+                        <textarea th:field="*{texto}" th:errorclass="campo-com-erro" maxlength="500"
+                                  placeholder="Ex.: liguei para o tutor, o pet voltou a beber água normalmente."></textarea>
+                        <div class="erro-campo" th:if="${#fields.hasErrors('texto')}" th:errors="*{texto}"></div>
+                    </div>
+                    <button type="submit" class="botao-secundario">Adicionar anotação</button>
+                </form>
+            </section>
+
+            <section class="cartao" th:unless="${alerta.estaResolvido()}">
+                <div class="cartao-titulo"><h2>Resolver alerta</h2></div>
+                <form th:action="@{/alertas/{id}/resolver(id=${alerta.id})}" th:object="${resolucao}" method="post" novalidate>
+                    <div class="form-grupo">
+                        <textarea th:field="*{texto}" th:errorclass="campo-com-erro" maxlength="500"
+                                  placeholder="Como o alerta foi resolvido e qual a orientação final ao tutor"></textarea>
+                        <div class="erro-campo" th:if="${#fields.hasErrors('texto')}" th:errors="*{texto}"></div>
+                    </div>
+                    <button type="submit" class="botao">Marcar como resolvido</button>
+                </form>
+            </section>
+        </div>
+
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Linha do tempo</h2></div>
+            <ol class="linha-tempo" th:unless="${#lists.isEmpty(acompanhamentos)}">
+                <li th:each="item : ${acompanhamentos}">
+                    <div class="marco-cabecalho">
+                        <strong th:text="${item.autor}"></strong>
+                        <span class="marco-data" th:text="${#temporals.format(item.dataRegistro, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                    <p th:text="${item.anotacao}"></p>
+                </li>
+            </ol>
+            <div class="vazio" th:if="${#lists.isEmpty(acompanhamentos)}">Ainda não há anotações neste alerta.</div>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

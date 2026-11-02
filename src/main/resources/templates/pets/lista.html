@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Pets')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('pets')}"></header>
+<main class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Pets</h1>
+            <p class="subtitulo">Pacientes acompanhados pela clínica</p>
+        </div>
+        <a th:href="@{/pets/novo}" class="botao">Novo pet</a>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <form class="filtros" th:action="@{/pets}" method="get">
+        <div class="form-grupo largo">
+            <label for="busca">Buscar</label>
+            <input type="search" id="busca" name="busca" th:value="${busca}" placeholder="Nome do pet ou do tutor">
+        </div>
+        <div class="form-grupo">
+            <label for="especie">Espécie</label>
+            <select id="especie" name="especie">
+                <option value="">Todas</option>
+                <option th:each="e : ${especies}" th:value="${e}" th:text="${e.descricao}" th:selected="${e == especieSelecionada}"></option>
+            </select>
+        </div>
+        <button type="submit" class="botao-secundario">Filtrar</button>
+        <a th:href="@{/pets}" class="botao-fantasma">Limpar</a>
+    </form>
+
+    <div class="cartao cartao-sem-espaco tabela-rolavel">
+        <table th:unless="${#lists.isEmpty(pets)}">
+            <thead>
+            <tr><th>Pet</th><th>Espécie</th><th>Idade</th><th>Peso</th><th>Tutor</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="pet : ${pets}">
+                <td>
+                    <a class="link-linha" th:href="@{/pets/{id}(id=${pet.id})}" th:text="${pet.nome}">Toby</a>
+                    <div class="texto-secundario" th:text="${pet.raca}"></div>
+                </td>
+                <td th:text="${pet.especie.descricao}"></td>
+                <td th:text="${pet.idadeFormatada}"></td>
+                <td th:text="${pet.pesoFormatado}"></td>
+                <td><a class="link-linha" th:href="@{/tutores/{id}(id=${pet.tutor.id})}" th:text="${pet.tutor.nome}"></a></td>
+                <td class="celula-acoes">
+                    <a th:href="@{/pets/{id}/editar(id=${pet.id})}" class="botao-secundario botao-pequeno">Editar</a>
+                    <form th:action="@{/pets/{id}/excluir(id=${pet.id})}" method="post"
+                          th:attr="onsubmit=|return confirm('Excluir ${pet.nome}? Esta ação não pode ser desfeita.')|">
+                        <button type="submit" class="botao-perigo botao-pequeno">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="vazio" th:if="${#lists.isEmpty(pets)}"><strong>Nenhum pet encontrado</strong>Ajuste os filtros ou cadastre um novo pet.</div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

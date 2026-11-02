@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Alertas')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('alertas')}"></header>
+<main class="pagina">
+    <div class="cabecalho-pagina">
+        <div>
+            <h1>Acompanhamento de alertas</h1>
+            <p class="subtitulo">Sinais vindos dos sensores IoT, da recepção e dos próprios tutores</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="abas">
+        <a th:href="@{/alertas}" class="aba" th:classappend="${filtro.status == null and filtro.somenteAtivos} ? 'ativa'">Ativos</a>
+        <a th:each="s : ${statusAlerta}" th:href="@{/alertas(status=${s})}" class="aba"
+           th:classappend="${filtro.status == s} ? 'ativa'" th:text="${s.descricao}"></a>
+        <a th:href="@{/alertas(somenteAtivos=false)}" class="aba" th:classappend="${filtro.status == null and !filtro.somenteAtivos} ? 'ativa'">Todos</a>
+    </div>
+
+    <form class="filtros" th:action="@{/alertas}" th:object="${filtro}" method="get">
+        <input type="hidden" th:field="*{status}">
+        <input type="hidden" th:field="*{somenteAtivos}">
+        <div class="form-grupo">
+            <label for="prioridade">Prioridade</label>
+            <select th:field="*{prioridade}">
+                <option value="">Todas</option>
+                <option th:each="p : ${prioridades}" th:value="${p}" th:text="${p.descricao}"></option>
+            </select>
+        </div>
+        <div class="form-grupo">
+            <label for="origem">Origem</label>
+            <select th:field="*{origem}">
+                <option value="">Todas</option>
+                <option th:each="o : ${origensAlerta}" th:value="${o}" th:text="${o.descricao}"></option>
+            </select>
+        </div>
+        <button type="submit" class="botao-secundario">Filtrar</button>
+    </form>
+
+    <div class="cartao cartao-sem-espaco tabela-rolavel">
+        <table th:unless="${#lists.isEmpty(alertas)}">
+            <thead>
+            <tr><th>Pet</th><th>Alerta</th><th>Prioridade</th><th>Responsável</th><th>Situação</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="alerta : ${alertas}">
+                <td>
+                    <span class="texto-forte" th:text="${alerta.pet.nome}"></span>
+                    <div class="texto-secundario" th:text="${alerta.pet.tutor.nome}"></div>
+                </td>
+                <td>
+                    <div th:text="${alerta.descricao}"></div>
+                    <div class="texto-secundario" th:text="${alerta.origem.descricao} + ' · há ' + ${alerta.diasEmAberto} + ' dia(s)'"></div>
+                </td>
+                <td><span th:replace="~{fragments/layout :: prioridade(${alerta})}"></span></td>
+                <td th:text="${alerta.responsavel != null} ? ${alerta.responsavel.nome} : 'Ninguém ainda'"
+                    th:classappend="${alerta.responsavel == null} ? 'texto-secundario'"></td>
+                <td><span th:replace="~{fragments/layout :: statusAlerta(${alerta})}"></span></td>
+                <td class="celula-acoes">
+                    <a th:href="@{/alertas/{id}(id=${alerta.id})}" class="botao-secundario botao-pequeno"
+                       th:text="${alerta.estaResolvido()} ? 'Ver' : 'Acompanhar'">Acompanhar</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="vazio" th:if="${#lists.isEmpty(alertas)}"><strong>Nenhum alerta encontrado</strong>Nenhum alerta com os filtros escolhidos.</div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

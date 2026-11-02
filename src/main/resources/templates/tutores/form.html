@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${tutor.id != null} ? 'Editar tutor' : 'Novo tutor')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('tutores')}"></header>
+<main class="pagina">
+    <div class="migalha"><a th:href="@{/tutores}">Tutores</a> / <span th:text="${tutor.id != null} ? ${tutor.nome} : 'Novo tutor'"></span></div>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1 th:text="${tutor.id != null} ? 'Editar tutor' : 'Novo tutor'">Novo tutor</h1>
+            <p class="subtitulo">Com o email e a senha, o tutor acessa a área dele e acompanha os pets</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="cartao cartao-form">
+        <form th:action="@{/tutores/salvar}" th:object="${tutor}" method="post" novalidate>
+            <input type="hidden" th:field="*{id}">
+
+            <div class="form-grupo">
+                <label for="nome">Nome completo</label>
+                <input type="text" th:field="*{nome}" th:errorclass="campo-com-erro" maxlength="120">
+                <div class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+            </div>
+
+            <div class="form-linha">
+                <div class="form-grupo">
+                    <label for="email">Email de acesso</label>
+                    <input type="email" th:field="*{email}" th:errorclass="campo-com-erro" maxlength="150">
+                    <div class="erro-campo" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+                <div class="form-grupo">
+                    <label for="telefone">Telefone</label>
+                    <input type="text" th:field="*{telefone}" th:errorclass="campo-com-erro" placeholder="11 99999-0000" maxlength="20">
+                    <div class="erro-campo" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></div>
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" autocomplete="new-password">
+                <div class="ajuda" th:text="${tutor.id != null} ? 'Deixe em branco para manter a senha atual.' : 'Mínimo de 6 caracteres.'"></div>
+            </div>
+
+            <div class="botoes-form">
+                <button type="submit" class="botao">Salvar</button>
+                <a th:href="@{/tutores}" class="botao-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

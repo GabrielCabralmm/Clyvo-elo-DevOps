@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Visão da clínica')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('inicio')}"></header>
+<main class="pagina">
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <section class="boas-vindas">
+        <div>
+            <h1>Olá, <span th:text="${usuarioLogado.primeiroNome}">Renata</span></h1>
+            <p>Visão geral da clínica hoje, <span th:text="${#temporals.format(#temporals.createToday(), 'dd/MM/yyyy')}"></span>.</p>
+        </div>
+        <div class="acoes">
+            <a th:href="@{/tutores/novo}" class="botao-secundario">Novo tutor</a>
+            <a th:href="@{/pets/novo}" class="botao-secundario">Novo pet</a>
+        </div>
+    </section>
+
+    <div class="grade-kpi">
+        <a th:href="@{/pets}" class="kpi">
+            <div class="kpi-rotulo">Pets acompanhados</div>
+            <div class="kpi-valor" th:text="${painel.totalPets}">0</div>
+            <div class="kpi-detalhe"><span th:text="${painel.totalTutores}">0</span> tutores cadastrados</div>
+        </a>
+        <a th:href="@{/funcionarios}" class="kpi">
+            <div class="kpi-rotulo">Veterinários na equipe</div>
+            <div class="kpi-valor" th:text="${painel.totalVeterinarios}">0</div>
+            <div class="kpi-detalhe">com acesso ao painel</div>
+        </a>
+        <div class="kpi" th:classappend="${painel.eventosAtrasados > 0} ? 'kpi-atencao'">
+            <div class="kpi-rotulo">Eventos pendentes</div>
+            <div class="kpi-valor" th:text="${painel.eventosPendentes}">0</div>
+            <div class="kpi-detalhe"><span th:text="${painel.eventosAtrasados}">0</span> com a data já vencida</div>
+        </div>
+        <div class="kpi" th:classappend="${painel.alertasAtivos > 0} ? 'kpi-perigo'">
+            <div class="kpi-rotulo">Alertas ativos</div>
+            <div class="kpi-valor" th:text="${painel.alertasAtivos}">0</div>
+            <div class="kpi-detalhe">abertos ou em acompanhamento</div>
+        </div>
+    </div>
+
+    <div class="grade-3">
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Pets por espécie</h2></div>
+            <div class="barra-linha" th:each="item : ${painel.petsPorEspecie}">
+                <span class="barra-rotulo" th:text="${item.rotulo}"></span>
+                <div class="barra-trilho"><div class="barra-preenchimento" th:style="'width:' + ${item.percentualDe(painel.totalPets)} + '%'"></div></div>
+                <span class="barra-valor" th:text="${item.quantidade}"></span>
+            </div>
+        </section>
+
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Eventos clínicos por tipo</h2></div>
+            <div class="barra-linha" th:each="item : ${painel.eventosPorTipo}">
+                <span class="barra-rotulo" th:text="${item.rotulo}"></span>
+                <div class="barra-trilho"><div class="barra-preenchimento" th:style="'width:' + ${item.percentualDe(painel.totalEventosPorTipo())} + '%'"></div></div>
+                <span class="barra-valor" th:text="${item.quantidade}"></span>
+            </div>
+        </section>
+
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Alertas ativos por prioridade</h2></div>
+            <div class="barra-linha" th:each="item : ${painel.alertasPorPrioridade}">
+                <span class="barra-rotulo" th:text="${item.rotulo}"></span>
+                <div class="barra-trilho"><div class="barra-preenchimento" th:classappend="${item.cor}" th:style="'width:' + ${item.percentualDe(painel.totalAlertasAtivosPorPrioridade())} + '%'"></div></div>
+                <span class="barra-valor" th:text="${item.quantidade}"></span>
+            </div>
+        </section>
+    </div>
+
+    <div class="grade-2 espaco-acima">
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Alertas de prioridade alta</h2></div>
+            <ul class="lista-simples" th:unless="${#lists.isEmpty(painel.alertasCriticos)}">
+                <li th:each="alerta : ${painel.alertasCriticos}">
+                    <div class="item-principal">
+                        <a th:href="@{/pets/{id}(id=${alerta.pet.id})}" th:text="${alerta.pet.nome}">Toby</a>
+                        <span class="texto-secundario" th:text="${alerta.descricao}"></span>
+                    </div>
+                    <span th:replace="~{fragments/layout :: statusAlerta(${alerta})}"></span>
+                </li>
+            </ul>
+            <div class="vazio" th:if="${#lists.isEmpty(painel.alertasCriticos)}"><strong>Nenhum alerta crítico</strong>A equipe está com tudo sob controle.</div>
+        </section>
+
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Últimos atendimentos</h2></div>
+            <ul class="lista-simples" th:unless="${#lists.isEmpty(painel.ultimosAtendimentos)}">
+                <li th:each="evento : ${painel.ultimosAtendimentos}">
+                    <div class="item-principal">
+                        <a th:href="@{/pets/{id}(id=${evento.pet.id})}" th:text="${evento.pet.nome} + ' · ' + ${evento.tipoEvento.descricao}">Toby</a>
+                        <span class="texto-secundario" th:text="'por ' + ${evento.funcionarioAtendeu != null ? evento.funcionarioAtendeu.nome : 'equipe'}"></span>
+                    </div>
+                    <span class="texto-secundario" th:text="${evento.dataAtendimento != null ? #temporals.format(evento.dataAtendimento, 'dd/MM') : ''}"></span>
+                </li>
+            </ul>
+            <div class="vazio" th:if="${#lists.isEmpty(painel.ultimosAtendimentos)}"><strong>Sem atendimentos ainda</strong></div>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

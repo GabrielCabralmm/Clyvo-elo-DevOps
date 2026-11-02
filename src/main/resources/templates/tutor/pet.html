@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${pet.nome})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('inicio')}"></header>
+<main class="pagina">
+    <div class="migalha"><a th:href="@{/}">Meus pets</a> / <span th:text="${pet.nome}"></span></div>
+    <div class="cabecalho-pagina">
+        <div class="pet-topo">
+            <span class="pet-icone" th:text="${#strings.substring(pet.nome, 0, 1)}">T</span>
+            <div>
+                <h1 th:text="${pet.nome}">Toby</h1>
+                <p class="subtitulo" th:text="${pet.especie.descricao} + (${pet.raca != null} ? ' · ' + ${pet.raca} : '') + ' · ' + ${pet.idadeFormatada} + (${pet.pesoKg != null} ? ' · ' + ${pet.pesoFormatado} : '')"></p>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="grade-lateral">
+        <section class="cartao">
+            <div class="cartao-titulo"><h2>Agenda e orientações da clínica</h2></div>
+            <div th:replace="~{fragments/layout :: linhaTempoEventos(${eventos})}"></div>
+        </section>
+
+        <div>
+            <section class="cartao">
+                <div class="cartao-titulo"><h2>Percebeu algo diferente?</h2></div>
+                <p class="texto-secundario" style="margin-top:0;">Conte para a equipe veterinária. O relato vira um alerta acompanhado por um veterinário.</p>
+                <form th:action="@{/minha-area/pets/{id}/relatar(id=${pet.id})}" th:object="${relato}" method="post" novalidate>
+                    <div class="form-grupo">
+                        <label for="prioridade">Urgência</label>
+                        <select th:field="*{prioridade}">
+                            <option th:each="p : ${prioridades}" th:value="${p}" th:text="${p.descricao}"></option>
+                        </select>
+                    </div>
+                    <div class="form-grupo">
+                        <label for="descricao">O que está acontecendo</label>
+                        <textarea th:field="*{descricao}" th:errorclass="campo-com-erro" maxlength="500"
+                                  placeholder="Ex.: desde ontem está comendo pouco e mais quieto que o normal"></textarea>
+                        <div class="erro-campo" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}"></div>
+                    </div>
+                    <button type="submit" class="botao botao-largo">Enviar para a clínica</button>
+                </form>
+            </section>
+
+            <section class="cartao">
+                <div class="cartao-titulo"><h2>Alertas do pet</h2></div>
+                <ul class="lista-simples" th:unless="${#lists.isEmpty(alertas)}">
+                    <li th:each="alerta : ${alertas}">
+                        <div class="item-principal">
+                            <span class="texto-forte" th:text="${alerta.descricao}"></span>
+                            <span class="texto-secundario"
+                                  th:text="${alerta.responsavel != null} ? 'Acompanhado por ' + ${alerta.responsavel.nome} : 'Aguardando um veterinário'"></span>
+                            <span class="texto-secundario" th:if="${alerta.estaResolvido()}" th:text="${alerta.notaResolucao}"></span>
+                        </div>
+                        <span th:replace="~{fragments/layout :: statusAlerta(${alerta})}"></span>
+                    </li>
+                </ul>
+                <div class="vazio" th:if="${#lists.isEmpty(alertas)}">Nenhum alerta para este pet.</div>
+            </section>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

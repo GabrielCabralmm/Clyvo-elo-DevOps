@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${funcionario.id != null} ? 'Editar funcionário' : 'Novo funcionário')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('equipe')}"></header>
+<main class="pagina">
+    <div class="migalha"><a th:href="@{/funcionarios}">Equipe</a> / <span th:text="${funcionario.id != null} ? ${funcionario.nome} : 'Novo funcionário'"></span></div>
+    <div class="cabecalho-pagina">
+        <div>
+            <h1 th:text="${funcionario.id != null} ? 'Editar funcionário' : 'Novo funcionário'">Novo funcionário</h1>
+            <p class="subtitulo">O perfil define o que a pessoa pode fazer no painel</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <div class="cartao cartao-form">
+        <form th:action="@{/funcionarios/salvar}" th:object="${funcionario}" method="post" novalidate>
+            <input type="hidden" th:field="*{id}">
+
+            <div class="form-grupo">
+                <label for="nome">Nome completo</label>
+                <input type="text" th:field="*{nome}" th:errorclass="campo-com-erro" maxlength="120">
+                <div class="erro-campo" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+            </div>
+
+            <div class="form-linha">
+                <div class="form-grupo">
+                    <label for="email">Email de acesso</label>
+                    <input type="email" th:field="*{email}" th:errorclass="campo-com-erro" maxlength="150">
+                    <div class="erro-campo" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                </div>
+                <div class="form-grupo">
+                    <label for="perfil">Perfil</label>
+                    <select th:field="*{perfil}" th:errorclass="campo-com-erro">
+                        <option value="">Selecione</option>
+                        <option th:each="p : ${perfisDaEquipe}" th:value="${p}" th:text="${p.descricao}"></option>
+                    </select>
+                    <div class="erro-campo" th:if="${#fields.hasErrors('perfil')}" th:errors="*{perfil}"></div>
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" autocomplete="new-password">
+                <div class="ajuda" th:text="${funcionario.id != null} ? 'Deixe em branco para manter a senha atual.' : 'Mínimo de 6 caracteres.'"></div>
+            </div>
+
+            <div class="botoes-form">
+                <button type="submit" class="botao">Salvar</button>
+                <a th:href="@{/funcionarios}" class="botao-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Minha agenda')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: nav('inicio')}"></header>
+<main class="pagina">
+    <div th:replace="~{fragments/layout :: mensagens}"></div>
+
+    <section class="boas-vindas">
+        <div>
+            <h1>Bom trabalho, <span th:text="${usuarioLogado.primeiroNome}">Ana</span></h1>
+            <p>Sua agenda clínica e os alertas que precisam de um veterinário.</p>
+        </div>
+        <div class="acoes">
+            <a th:href="@{/eventos/novo}" class="botao-secundario">Agendar evento</a>
+            <a th:href="@{/alertas}" class="botao-secundario">Ver todos os alertas</a>
+        </div>
+    </section>
+
+    <div class="grade-kpi">
+        <a th:href="@{/eventos(status='ATRASADO')}" class="kpi" th:classappend="${!#lists.isEmpty(painel.atrasados)} ? 'kpi-perigo'">
+            <div class="kpi-rotulo">Eventos atrasados</div>
+            <div class="kpi-valor" th:text="${#lists.size(painel.atrasados)}">0</div>
+            <div class="kpi-detalhe">com a data já vencida</div>
+        </a>
+        <div class="kpi">
+            <div class="kpi-rotulo">Para hoje</div>
+            <div class="kpi-valor" th:text="${#lists.size(painel.hoje)}">0</div>
+            <div class="kpi-detalhe">eventos agendados</div>
+        </div>
+        <a th:href="@{/alertas(status='ABERTO')}" class="kpi" th:classappend="${!#lists.isEmpty(painel.alertasSemResponsavel)} ? 'kpi-atencao'">
+            <div class="kpi-rotulo">Alertas sem responsável</div>
+            <div class="kpi-valor" th:text="${#lists.size(painel.alertasSemResponsavel)}">0</div>
+            <div class="kpi-detalhe">aguardando um veterinário</div>
+        </a>
+        <div class="kpi">
+            <div class="kpi-rotulo">Meus atendimentos no mês</div>
+            <div class="kpi-valor" th:text="${painel.atendimentosNoMes}">0</div>
+            <div class="kpi-detalhe">eventos concluídos por você</div>
+        </div>
+    </div>
+
+    <div class="grade-lateral">
+        <div>
+            <section class="cartao" th:unless="${#lists.isEmpty(painel.atrasados)}">
+                <div class="cartao-titulo"><h2>Atrasados</h2><a th:href="@{/eventos(status='ATRASADO')}">Ver todos</a></div>
+                <div th:replace="~{fragments/layout :: listaEventos(${painel.atrasados}, '')}"></div>
+            </section>
+            <section class="cartao">
+                <div class="cartao-titulo"><h2>Hoje</h2></div>
+                <div th:replace="~{fragments/layout :: listaEventos(${painel.hoje}, 'Nenhum evento marcado para hoje.')}"></div>
+            </section>
+            <section class="cartao">
+                <div class="cartao-titulo"><h2>Próximos 7 dias</h2><a th:href="@{/eventos}">Agenda completa</a></div>
+                <div th:replace="~{fragments/layout :: listaEventos(${painel.proximos}, 'Nada agendado para a próxima semana.')}"></div>
+            </section>
+        </div>
+        <div>
+            <section class="cartao">
+                <div class="cartao-titulo"><h2>Em acompanhamento por mim</h2></div>
+                <div th:replace="~{fragments/layout :: listaAlertas(${painel.meusAlertas}, 'Você não tem alertas em acompanhamento.')}"></div>
+            </section>
+            <section class="cartao">
+                <div class="cartao-titulo"><h2>Aguardando responsável</h2></div>
+                <div th:replace="~{fragments/layout :: listaAlertas(${painel.alertasSemResponsavel}, 'Todos os alertas já têm responsável.')}"></div>
+            </section>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: rodape}"></footer>
+</body>
+</html>

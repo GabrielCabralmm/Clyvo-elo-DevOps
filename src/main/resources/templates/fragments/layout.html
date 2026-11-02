@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' · CLYVO Elo'">CLYVO Elo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" th:href="@{/css/estilo.css}">
+</head>
+
+<body>
+
+<header th:fragment="nav(ativo)" class="topo">
+    <a th:href="@{/}" class="marca">
+        <span class="marca-simbolo">C</span>
+        <span>CLYVO <strong>Elo</strong></span>
+    </a>
+
+    <nav class="menu">
+        <a th:href="@{/}" th:classappend="${ativo == 'inicio'} ? 'ativo'">Início</a>
+        <a th:href="@{/pets}" sec:authorize="hasRole('ADMIN')" th:classappend="${ativo == 'pets'} ? 'ativo'">Pets</a>
+        <a th:href="@{/tutores}" sec:authorize="hasRole('ADMIN')" th:classappend="${ativo == 'tutores'} ? 'ativo'">Tutores</a>
+        <a th:href="@{/funcionarios}" sec:authorize="hasRole('ADMIN')" th:classappend="${ativo == 'equipe'} ? 'ativo'">Equipe</a>
+        <a th:href="@{/eventos}" sec:authorize="hasRole('DOUTOR')" th:classappend="${ativo == 'eventos'} ? 'ativo'">Eventos clínicos</a>
+        <a th:href="@{/alertas}" sec:authorize="hasRole('DOUTOR')" th:classappend="${ativo == 'alertas'} ? 'ativo'">Alertas</a>
+        <a th:href="@{/ecossistema}" th:classappend="${ativo == 'ecossistema'} ? 'ativo'">Ecossistema</a>
+    </nav>
+
+    <div class="usuario" th:if="${usuarioLogado != null}">
+        <span class="avatar" th:text="${#strings.substring(usuarioLogado.nome, 0, 1)}">A</span>
+        <div class="usuario-info">
+            <span class="usuario-nome" th:text="${usuarioLogado.nome}">Usuário</span>
+            <span class="usuario-perfil" th:text="${usuarioLogado.perfil.descricao}">Perfil</span>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="botao-sair">Sair</button>
+        </form>
+    </div>
+</header>
+
+<div th:fragment="mensagens" class="mensagens">
+    <div class="aviso aviso-sucesso" th:if="${mensagemSucesso}" th:text="${mensagemSucesso}" role="status"></div>
+    <div class="aviso aviso-erro" th:if="${mensagemErro}" th:text="${mensagemErro}" role="alert"></div>
+</div>
+
+<span th:fragment="situacaoEvento(evento)" class="etiqueta"
+      th:classappend="'etq-' + ${evento.situacao.name()}" th:text="${evento.situacao.descricao}">Pendente</span>
+
+<span th:fragment="statusAlerta(alerta)" class="etiqueta"
+      th:classappend="'etq-' + ${alerta.status.name()}" th:text="${alerta.status.descricao}">Aberto</span>
+
+<span th:fragment="prioridade(alerta)" class="etiqueta etiqueta-contorno"
+      th:classappend="'etq-' + ${alerta.prioridade.name()}" th:text="${alerta.prioridade.descricao}">Alta</span>
+
+<div th:fragment="listaEventos(eventos, mensagemVazia)">
+    <ul class="lista-simples" th:unless="${#lists.isEmpty(eventos)}">
+        <li th:each="evento : ${eventos}">
+            <div class="item-principal">
+                <a th:href="@{/eventos/{id}(id=${evento.id})}" th:text="${evento.pet.nome} + ' · ' + ${evento.tipoEvento.descricao}">Toby · Vacina</a>
+                <span class="texto-secundario" th:text="${#temporals.format(evento.dataEvento, 'dd/MM/yyyy')} + ' · ' + ${evento.descricao}"></span>
+            </div>
+            <span th:replace="~{fragments/layout :: situacaoEvento(${evento})}"></span>
+        </li>
+    </ul>
+    <div class="vazio" th:if="${#lists.isEmpty(eventos)}" th:text="${mensagemVazia}">Nada por aqui.</div>
+</div>
+
+<div th:fragment="listaAlertas(alertas, mensagemVazia)">
+    <ul class="lista-simples" th:unless="${#lists.isEmpty(alertas)}">
+        <li th:each="alerta : ${alertas}">
+            <div class="item-principal">
+                <a th:href="@{/alertas/{id}(id=${alerta.id})}" th:text="${alerta.pet.nome} + ' · ' + ${alerta.origem.descricao}">Toby</a>
+                <span class="texto-secundario" th:text="${alerta.descricao}"></span>
+            </div>
+            <span th:replace="~{fragments/layout :: prioridade(${alerta})}"></span>
+        </li>
+    </ul>
+    <div class="vazio" th:if="${#lists.isEmpty(alertas)}" th:text="${mensagemVazia}">Nada por aqui.</div>
+</div>
+
+<div th:fragment="linhaTempoEventos(eventos)">
+    <ol class="linha-tempo" th:unless="${#lists.isEmpty(eventos)}">
+        <li th:each="evento : ${eventos}">
+            <div class="marco-cabecalho">
+                <strong th:text="${evento.tipoEvento.descricao}"></strong>
+                <span th:replace="~{fragments/layout :: situacaoEvento(${evento})}"></span>
+                <span class="marco-data" th:text="${#temporals.format(evento.dataEvento, 'dd/MM/yyyy')}"></span>
+            </div>
+            <p th:text="${evento.descricao}"></p>
+            <div class="destaque" th:if="${evento.estaConcluido()}">
+                <span class="texto-secundario" th:text="'Orientação de ' + ${evento.funcionarioAtendeu != null ? evento.funcionarioAtendeu.nome : 'equipe'}"></span>
+                <p th:text="${evento.observacaoAtendimento}"></p>
+            </div>
+        </li>
+    </ol>
+    <div class="vazio" th:if="${#lists.isEmpty(eventos)}">Nenhum evento clínico registrado.</div>
+</div>
+
+<div th:fragment="historicoAlertas(alertas)">
+    <ul class="lista-simples" th:unless="${#lists.isEmpty(alertas)}">
+        <li th:each="alerta : ${alertas}">
+            <div class="item-principal">
+                <span class="texto-forte" th:text="${alerta.descricao}"></span>
+                <span class="texto-secundario" th:text="${alerta.origem.descricao} + ' · ' + ${#temporals.format(alerta.dataCriacao, 'dd/MM/yyyy')}"></span>
+            </div>
+            <span th:replace="~{fragments/layout :: statusAlerta(${alerta})}"></span>
+        </li>
+    </ul>
+    <div class="vazio" th:if="${#lists.isEmpty(alertas)}">Nenhum alerta registrado.</div>
+</div>
+
+<footer th:fragment="rodape" class="rodape">
+    CLYVO Elo · Challenge FIAP 2026 · CLYVO VET
+</footer>
+
+</body>
+</html>
