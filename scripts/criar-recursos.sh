@@ -31,7 +31,7 @@ az postgres flexible-server create \
   --version 16 \
   --admin-user "$USUARIO_BD" \
   --admin-password "$SENHA_BD" \
-  --public-access 0.0.0.0 \
+  --public-access Enabled \
   --yes
 
 az postgres flexible-server db create \
@@ -39,15 +39,13 @@ az postgres flexible-server db create \
   --server-name "$SERVIDOR_BD" \
   --database-name "$BANCO"
 
-# Liberação do IP de quem administra o banco
-if [ -n "$MEU_IP" ]; then
-  az postgres flexible-server firewall-rule create \
-    --resource-group "$GRUPO" \
-    --name "$SERVIDOR_BD" \
-    --rule-name acesso-administrador \
-    --start-ip-address "$MEU_IP" \
-    --end-ip-address "$MEU_IP"
-fi
+# Acesso público ao banco
+az postgres flexible-server firewall-rule create \
+  --resource-group "$GRUPO" \
+  --name "$SERVIDOR_BD" \
+  --rule-name acesso-publico \
+  --start-ip-address 0.0.0.0 \
+  --end-ip-address 255.255.255.255
 
 # Plano do Serviço de Aplicativo
 az appservice plan create \

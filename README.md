@@ -172,7 +172,6 @@ az account show
 git clone https://github.com/GabrielCabralmm/clyvo-elo-devops.git
 cd clyvo-elo-devops/scripts
 chmod +x criar-recursos.sh
-export MEU_IP=<seu IP público, para consultar o banco do seu computador>
 ./criar-recursos.sh
 ```
 
@@ -183,7 +182,7 @@ O script pede a senha do administrador do banco e cria, em ordem:
 | Grupo de recursos | `rg-clyvo-elo` |
 | Azure Database for PostgreSQL Flexible Server | `pg-clyvo-elo-rm563230` (usuário `clyvoadmin`) |
 | Banco de dados | `clyvoelo` |
-| Regras de firewall | acesso a partir dos serviços do Azure, mais o `MEU_IP` |
+| Acesso ao banco | rede pública habilitada, com regra de firewall `acesso-publico` liberando todos os IPs |
 | Plano do Serviço de Aplicativo | `plan-clyvo-elo` (Linux, B1) |
 | Serviço de Aplicativo | `clyvo-elo-rm563230` (Java 21) |
 | Configurações adicionais | Always On, somente HTTPS, logs, comando de inicialização e porta |
@@ -252,7 +251,7 @@ Para usar outra região, rode `export LOCAL=eastus2` antes do script. O padrão 
 
 ## 7. Como testar o CRUD com evidência no banco
 
-Use qualquer cliente PostgreSQL conectado ao servidor: pgAdmin, DBeaver, Azure Data Studio ou a extensão PostgreSQL do VS Code. O IP precisa estar liberado no firewall. Os SELECTs estão em [`scripts/consultas-crud.sql`](scripts/consultas-crud.sql).
+Use qualquer cliente PostgreSQL conectado ao servidor: pgAdmin, DBeaver, Azure Data Studio ou a extensão PostgreSQL do VS Code. O banco aceita conexões públicas, com SSL. Os SELECTs estão em [`scripts/consultas-crud.sql`](scripts/consultas-crud.sql).
 
 Entre como **Administrador** (`renata.souza@clyvovet.com` / `clyvo123`):
 
