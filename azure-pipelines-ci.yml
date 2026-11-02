@@ -1,0 +1,49 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  nomeDoArtefato: clyvo-elo-painel
+
+steps:
+  - task: JavaToolInstaller@0
+    displayName: Configura o Java 21
+    inputs:
+      versionSpec: '21'
+      jdkArchitectureOption: x64
+      jdkSourceOption: PreInstalled
+
+  - task: Maven@4
+    displayName: Compila e executa os testes automatizados
+    inputs:
+      mavenPomFile: pom.xml
+      goals: clean package
+      options: -B
+      javaHomeOption: JDKVersion
+      jdkVersionOption: default
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      testRunTitle: Testes do painel CLYVO Elo
+
+  - task: CopyFiles@2
+    displayName: Separa o pacote da aplicação
+    inputs:
+      SourceFolder: target
+      Contents: '*.jar'
+      TargetFolder: $(Build.ArtifactStagingDirectory)
+
+  - script: mv $(Build.ArtifactStagingDirectory)/*.jar $(Build.ArtifactStagingDirectory)/app.jar
+    displayName: Renomeia o pacote para app.jar
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publica o artefato no Azure DevOps
+    inputs:
+      targetPath: $(Build.ArtifactStagingDirectory)
+      artifact: $(nomeDoArtefato)
+      publishLocation: pipeline

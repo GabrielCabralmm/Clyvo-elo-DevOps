@@ -1,0 +1,65 @@
+trigger: none
+
+pr: none
+
+resources:
+  pipelines:
+    - pipeline: ci
+      source: clyvo-elo-ci
+      trigger:
+        branches:
+          include:
+            - master
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  - group: clyvo-elo-segredos
+  - name: conexaoAzure
+    value: clyvo-elo-azure
+  - name: grupoDeRecursos
+    value: rg-clyvo-elo
+  - name: nomeDoWebApp
+    value: clyvo-elo-rm563230
+  - name: nomeDoArtefato
+    value: clyvo-elo-painel
+
+stages:
+  - stage: Deploy
+    displayName: Deploy no Azure Web App
+    jobs:
+      - deployment: DeployWebApp
+        displayName: Publica o painel no Web App
+        environment: producao
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: ci
+                  artifact: $(nomeDoArtefato)
+                  displayName: Baixa o artefato gerado pelo CI
+
+                - task: AzureAppServiceSettings@1
+                  displayName: Configura as variáveis de ambiente do Web App
+                  inputs:
+                    azureSubscription: $(conexaoAzure)
+                    appName: $(nomeDoWebApp)
+                    resourceGroupName: $(grupoDeRecursos)
+                    appSettings: |
+                      [
+                        { "name": "SPRING_DATASOURCE_URL", "value": "$(SPRING_DATASOURCE_URL)", "slotSetting": false },
+                        { "name": "SPRING_DATASOURCE_USERNAME", "value": "$(SPRING_DATASOURCE_USERNAME)", "slotSetting": false },
+                        { "name": "SPRING_DATASOURCE_PASSWORD", "value": "$(SPRING_DATASOURCE_PASSWORD)", "slotSetting": false },
+                        { "name": "SERVER_PORT", "value": "80", "slotSetting": false }
+                      ]
+
+                - task: AzureWebApp@1
+                  displayName: Faz o deploy do app.jar no Web App
+                  inputs:
+                    azureSubscription: $(conexaoAzure)
+                    appType: webAppLinux
+                    appName: $(nomeDoWebApp)
+                    package: $(Pipeline.Workspace)/ci/$(nomeDoArtefato)/app.jar
+                    runtimeStack: JAVA|21-java21
+                    startUpCommand: java -jar /home/site/wwwroot/app.jar
