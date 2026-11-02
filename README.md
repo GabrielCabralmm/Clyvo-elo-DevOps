@@ -6,7 +6,7 @@ O painel web do CLYVO Elo, feito em **Spring Boot**, é publicado no **Azure Web
 
 | | |
 |---|---|
-| Aplicação | https://clyvo-elo-devops-rm563230.azurewebsites.net |
+| Aplicação | https://clyvo-elo-devops.azurewebsites.net |
 | Azure DevOps | [a preencher] |
 | Vídeo | [a preencher] |
 
@@ -49,7 +49,7 @@ As tabelas centrais da solução são **tutor → pet → evento clínico / aler
 | Banco de dados | Azure Database for PostgreSQL Flexible Server 16 (PaaS), com tabelas versionadas pelo Flyway |
 | Testes | JUnit 5, Mockito e AssertJ (testes unitários das regras de negócio) |
 | Build | Maven |
-| Nuvem | Azure App Service: Plano Linux B1 e Web App Java 21 (Java SE), sem container |
+| Nuvem | Azure App Service: Plano Linux F1 e Web App Java 21 (Java SE), sem container, com Application Insights |
 | Infraestrutura | Azure CLI (Cloud Shell), em `scripts/criar-recursos.sh` |
 | CI/CD | Azure DevOps: Azure Repos, Build e Release no editor clássico, variáveis secretas |
 | Código-fonte | GitHub, importado no Azure Repos, branch `master` |
@@ -95,7 +95,7 @@ src/test/java              testes automatizados executados no CI
 ## 4. Banco de dados em nuvem
 
 - **Serviço:** Azure Database for PostgreSQL, Flexible Server (PaaS), versão 16, plano Burstable B1ms.
-- **Servidor:** `pg-clyvo-elo-rm563230.postgres.database.azure.com`, banco `clyvoelo`, conexão com SSL obrigatório.
+- **Servidor:** `pgserver-clyvo-elo.postgres.database.azure.com`, banco `clyvoelodb`, conexão com SSL obrigatório.
 - **Estrutura:** a DDL completa, com chaves e comentários em cada tabela e coluna, está em [`script_bd.sql`](script_bd.sql).
 - **Criação das tabelas:** a aplicação roda as migrações do Flyway no primeiro start (`src/main/resources/db/migration`). Elas criam as tabelas e inserem dados de demonstração com conteúdo real: tutores, pets, eventos clínicos e alertas.
 
@@ -137,7 +137,7 @@ As pipelines são montadas no **editor clássico** do Azure Pipelines: um **Buil
 |---|---|
 | Azure subscription | a assinatura, autorizada pelo botão **Authorize** |
 | App type | Web App on Linux |
-| App Service name | `clyvo-elo-devops-rm563230` |
+| App Service name | `clyvo-elo-devops` |
 | Package or folder | `$(System.DefaultWorkingDirectory)/**/*.jar` |
 | Startup command | `java -jar /home/site/wwwroot/app.jar` |
 | App settings | `-SPRING_DATASOURCE_URL "$(SPRING_DATASOURCE_URL)" -SPRING_DATASOURCE_USERNAME "$(SPRING_DATASOURCE_USERNAME)" -SPRING_DATASOURCE_PASSWORD "$(SPRING_DATASOURCE_PASSWORD)"` |
@@ -149,7 +149,7 @@ Nenhum usuário, senha ou token fica no código. Os dados do banco ficam na aba 
 
 | Variável | Valor | Secreta |
 |---|---|---|
-| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://pg-clyvo-elo-rm563230.postgres.database.azure.com:5432/clyvoelo?sslmode=require` | Não |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://pgserver-clyvo-elo.postgres.database.azure.com:5432/clyvoelodb?sslmode=require` | Não |
 | `SPRING_DATASOURCE_USERNAME` | `clyvoadmin` | Não |
 | `SPRING_DATASOURCE_PASSWORD` | senha do banco | **Sim** |
 
@@ -171,24 +171,27 @@ No [Portal do Azure](https://portal.azure.com), abra o **Cloud Shell** em modo *
 az account show
 git clone https://github.com/GabrielCabralmm/Clyvo-elo-DevOps.git
 cd Clyvo-elo-DevOps/scripts
+nano criar-recursos.sh
 chmod +x criar-recursos.sh
 ./criar-recursos.sh
 ```
 
-O script registra os provedores usados, pede a senha do administrador do banco e cria, em ordem:
+No `nano`, troque `<sua-senha>` pela senha do administrador do banco (com maiúscula, minúscula e número, sem aspas, `$`, `\` ou espaço), salve com **Ctrl+O** e saia com **Ctrl+X**. A senha fica só no Cloud Shell e não vai para o repositório.
+
+O script cria, em ordem:
 
 | Recurso | Nome |
 |---|---|
 | Grupo de recursos | `rg-clyvo-devops` |
-| Azure Database for PostgreSQL Flexible Server | `pg-clyvo-elo-rm563230` (usuário `clyvoadmin`) |
-| Banco de dados | `clyvoelo` |
+| Azure Database for PostgreSQL Flexible Server | `pgserver-clyvo-elo` (usuário `clyvoadmin`) |
+| Banco de dados | `clyvoelodb` |
 | Acesso ao banco | rede pública habilitada, com a regra de firewall `AllowAll` liberando todos os IPs |
 | Application Insights | `ai-clyvo-elo-devops` |
-| Plano do Serviço de Aplicativo | `clyvo-plan` (Linux, B1) |
-| Serviço de Aplicativo | `clyvo-elo-devops-rm563230` (Java 21) |
-| Configurações do Web App | Always On, somente HTTPS, comando de inicialização, porta, Application Insights e dados do banco |
+| Plano do Serviço de Aplicativo | `clyvo-plan` (Linux, F1) |
+| Serviço de Aplicativo | `clyvo-elo-devops` (Java 21) |
+| Configurações do Web App | Application Insights, porta e dados do banco |
 
-Para usar outra região, rode `export LOCATION=eastus2` antes do script. O padrão é `chilecentral`.
+A região usada é `chilecentral`. Para usar outra, troque a variável `LOCATION` no início do script.
 
 ### 6.3 Criar o projeto no Azure DevOps
 
@@ -222,7 +225,7 @@ Para usar outra região, rode `export LOCATION=eastus2` antes do script. O padr�
 4. Clique no **raio** do artefato e ative o **Continuous deployment trigger**. Deixe o *Pull request trigger* desligado.
 5. No stage, clique em **1 job, 1 task**:
    - **Azure subscription:** escolha a assinatura e clique em **Authorize**
-   - **App type:** Web App on Linux · **App service name:** `clyvo-elo-devops-rm563230`
+   - **App type:** Web App on Linux · **App service name:** `clyvo-elo-devops`
    - **Agent job:** pool Azure Pipelines, `ubuntu-latest`
 6. Task **Deploy Azure App Service**:
    - **Package or folder:** `$(System.DefaultWorkingDirectory)/**/*.jar`
@@ -231,7 +234,7 @@ Para usar outra região, rode `export LOCATION=eastus2` antes do script. O padr�
    - **Additional Deployment Options → Deployment method:** Zip Deploy, se a opção aparecer
 7. Aba **Variables** da Release: crie as mesmas três variáveis, com o cadeado na senha.
 8. **Save** e depois **Create release** → descrição `Deploy em Producao` → **Create**. Acompanhe os logs do stage até o **Succeeded**.
-9. Abra https://clyvo-elo-devops-rm563230.azurewebsites.net. O primeiro acesso depois do deploy pode levar cerca de 1 minuto.
+9. Abra https://clyvo-elo-devops.azurewebsites.net. O primeiro acesso depois do deploy pode levar cerca de 1 minuto.
 
 ### 6.6 Testar a esteira completa
 
@@ -279,7 +282,7 @@ Todos usam a senha `clyvo123`.
 
 ## 8. Rodar localmente (opcional)
 
-Com um PostgreSQL local e o banco `clyvoelo` criado:
+Com um PostgreSQL local e o banco `clyvoelodb` criado:
 
 ```bash
 export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/clyvoelo

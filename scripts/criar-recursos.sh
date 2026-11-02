@@ -1,45 +1,28 @@
-#!/bin/bash
-set -e
-
-# Variáveis
 RESOURCE_GROUP_NAME="rg-clyvo-devops"
-LOCATION="${LOCATION:-chilecentral}"
-WEBAPP_NAME="clyvo-elo-devops-rm563230"
+LOCATION="chilecentral"
+WEBAPP_NAME="clyvo-elo-devops"
 APP_SERVICE_PLAN="clyvo-plan"
 RUNTIME="JAVA:21-java21"
 APP_INSIGHTS_NAME="ai-clyvo-elo-devops"
-PG_SERVER_NAME="pg-clyvo-elo-rm563230"
-PG_DB_NAME="clyvoelo"
+PG_SERVER_NAME="pgserver-clyvo-elo"
+PG_DB_NAME="clyvoelodb"
 PG_ADMIN_USER="clyvoadmin"
-
-if [ -z "$PG_ADMIN_PASSWORD" ]; then
-  read -s -p "Senha do administrador do PostgreSQL: " PG_ADMIN_PASSWORD
-  echo
-fi
-
-# Provedores usados
-az provider register --namespace Microsoft.Web
-az provider register --namespace Microsoft.Insights
-az provider register --namespace Microsoft.OperationalInsights
-az provider register --namespace Microsoft.DBforPostgreSQL
-az extension add --name application-insights --upgrade --only-show-errors
+PG_ADMIN_PASSWORD="<sua-senha>"
 
 # Grupo de recursos
-az group create \
-  --name $RESOURCE_GROUP_NAME \
-  --location "$LOCATION"
+az group create --name $RESOURCE_GROUP_NAME --location "$LOCATION"
 
-# Banco de dados PostgreSQL (PaaS)
+# Banco de dados PostgreSQL
 az postgres flexible-server create \
-  --resource-group $RESOURCE_GROUP_NAME \
   --name $PG_SERVER_NAME \
+  --resource-group $RESOURCE_GROUP_NAME \
   --location "$LOCATION" \
+  --admin-user $PG_ADMIN_USER \
+  --admin-password $PG_ADMIN_PASSWORD \
   --tier Burstable \
   --sku-name Standard_B1ms \
   --storage-size 32 \
   --version 16 \
-  --admin-user $PG_ADMIN_USER \
-  --admin-password "$PG_ADMIN_PASSWORD" \
   --public-access Enabled \
   --yes
 
@@ -48,7 +31,6 @@ az postgres flexible-server db create \
   --server-name $PG_SERVER_NAME \
   --database-name $PG_DB_NAME
 
-# Acesso público ao banco
 az postgres flexible-server firewall-rule create \
   --resource-group $RESOURCE_GROUP_NAME \
   --name $PG_SERVER_NAME \
@@ -68,10 +50,10 @@ az appservice plan create \
   --name $APP_SERVICE_PLAN \
   --resource-group $RESOURCE_GROUP_NAME \
   --location "$LOCATION" \
-  --sku B1 \
+  --sku F1 \
   --is-linux
 
-# Serviço de Aplicativo (Web App)
+# Serviço de Aplicativo
 az webapp create \
   --name $WEBAPP_NAME \
   --resource-group $RESOURCE_GROUP_NAME \
@@ -86,17 +68,6 @@ az resource update \
   --parent sites/$WEBAPP_NAME \
   --set properties.allow=true
 
-az webapp config set \
-  --name $WEBAPP_NAME \
-  --resource-group $RESOURCE_GROUP_NAME \
-  --always-on true \
-  --startup-file "java -jar /home/site/wwwroot/app.jar"
-
-az webapp update \
-  --name $WEBAPP_NAME \
-  --resource-group $RESOURCE_GROUP_NAME \
-  --https-only true
-
 # Configurações do Web App
 CONNECTION_STRING=$(az monitor app-insights component show \
   --app $APP_INSIGHTS_NAME \
@@ -107,7 +78,6 @@ CONNECTION_STRING=$(az monitor app-insights component show \
 az webapp config appsettings set \
   --name "$WEBAPP_NAME" \
   --resource-group "$RESOURCE_GROUP_NAME" \
-  --output none \
   --settings \
     APPLICATIONINSIGHTS_CONNECTION_STRING="$CONNECTION_STRING" \
     ApplicationInsightsAgent_EXTENSION_VERSION="~3" \
@@ -118,18 +88,9 @@ az webapp config appsettings set \
     SPRING_DATASOURCE_PASSWORD="$PG_ADMIN_PASSWORD" \
     SPRING_DATASOURCE_URL="jdbc:postgresql://$PG_SERVER_NAME.postgres.database.azure.com:5432/$PG_DB_NAME?sslmode=require"
 
-az webapp restart \
-  --name $WEBAPP_NAME \
-  --resource-group $RESOURCE_GROUP_NAME
+az webapp restart --name $WEBAPP_NAME --resource-group $RESOURCE_GROUP_NAME
 
 az monitor app-insights component connect-webapp \
   --app $APP_INSIGHTS_NAME \
   --web-app $WEBAPP_NAME \
   --resource-group $RESOURCE_GROUP_NAME
-
-# Resumo
-echo
-echo "Web App:         https://$WEBAPP_NAME.azurewebsites.net"
-echo "Servidor do BD:  $PG_SERVER_NAME.postgres.database.azure.com"
-echo "JDBC URL:        jdbc:postgresql://$PG_SERVER_NAME.postgres.database.azure.com:5432/$PG_DB_NAME?sslmode=require"
-echo "Usuário do BD:   $PG_ADMIN_USER"
