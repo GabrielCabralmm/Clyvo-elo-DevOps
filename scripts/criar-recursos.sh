@@ -29,12 +29,12 @@ az postgres flexible-server create \
 az postgres flexible-server db create \
   --resource-group $RESOURCE_GROUP_NAME \
   --server-name $PG_SERVER_NAME \
-  --database-name $PG_DB_NAME
+  --name $PG_DB_NAME
 
 az postgres flexible-server firewall-rule create \
   --resource-group $RESOURCE_GROUP_NAME \
-  --name $PG_SERVER_NAME \
-  --rule-name AllowAll \
+  --server-name $PG_SERVER_NAME \
+  --name AllowAll \
   --start-ip-address 0.0.0.0 \
   --end-ip-address 255.255.255.255
 
