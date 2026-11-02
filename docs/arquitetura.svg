@@ -15,7 +15,7 @@
   <rect width="1600" height="1140" fill="#FFFFFF"/>
 
   <text x="40" y="44" font-size="28" font-weight="700" fill="#111827">CLYVO Elo — Arquitetura da solução e esteira CI/CD</text>
-  <text x="40" y="72" font-size="16" fill="#4B5563">Painel da clínica (Spring Boot) publicado no Azure Web App com banco Azure Database for PostgreSQL, entregue por pipelines do Azure DevOps</text>
+  <text x="40" y="72" font-size="16" fill="#4B5563">Painel da clínica (Spring Boot) publicado no Azure Web App com banco Azure Database for PostgreSQL, entregue pelo Azure Pipelines (Build + Release)</text>
 
   <rect x="40" y="110" width="250" height="190" rx="14" fill="#ECF6F0" stroke="#3F8F68" stroke-width="2"/>
   <use href="#pessoa" x="80" y="160"/>
@@ -30,46 +30,46 @@
   <circle cx="372" cy="146" r="16" fill="#111827"/>
   <path d="M366,140 a6,6 0 1 0 0.1,0 M378,140 v14 M366,146 v8" stroke="#FFFFFF" stroke-width="2.5" fill="none"/>
   <text x="396" y="152" font-size="18" font-weight="700" fill="#111827">GitHub</text>
-  <text x="358" y="190" font-size="14" fill="#374151">Repositório</text>
+  <text x="358" y="190" font-size="14" fill="#374151">Código-fonte</text>
   <text x="358" y="210" font-size="14" font-weight="600" fill="#111827">clyvo-elo-devops</text>
   <text x="358" y="236" font-size="14" fill="#374151">Branch</text>
   <rect x="410" y="222" width="70" height="22" rx="11" fill="#111827"/>
   <text x="445" y="238" font-size="13" font-weight="600" fill="#FFFFFF" text-anchor="middle">master</text>
-  <text x="358" y="272" font-size="13" fill="#6B7280">código + YAML do CI/CD</text>
+  <text x="358" y="272" font-size="13" fill="#6B7280">importado no Azure Repos</text>
 
   <rect x="580" y="96" width="980" height="300" rx="16" fill="#EFF6FF" stroke="#0078D4" stroke-width="2"/>
   <text x="604" y="128" font-size="20" font-weight="700" fill="#0B4A8B">Azure DevOps</text>
-  <text x="770" y="128" font-size="14" fill="#1E3A5F">Projeto “Sprint 4 – Azure DevOps” · Boards · Pipelines · Library · Environments</text>
+  <text x="770" y="128" font-size="14" fill="#1E3A5F">Projeto “Sprint 4 – Azure DevOps” · Repos · Pipelines · Releases</text>
 
   <rect x="604" y="146" width="340" height="230" rx="12" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.5"/>
-  <text x="624" y="174" font-size="17" font-weight="700" fill="#0B4A8B">Pipeline CI · clyvo-elo-ci</text>
-  <text x="624" y="196" font-size="13" fill="#6B7280">azure-pipelines-ci.yml · agente ubuntu</text>
-  <text x="624" y="226" font-size="14" fill="#111827">• Configura o Java 21</text>
-  <text x="624" y="252" font-size="14" fill="#111827">• Maven: compila o projeto</text>
+  <text x="624" y="174" font-size="17" font-weight="700" fill="#0B4A8B">Build (CI) · ClyvoElo-Maven-CI</text>
+  <text x="624" y="196" font-size="13" fill="#6B7280">editor clássico · Azure Repos · ubuntu-latest</text>
+  <text x="624" y="226" font-size="14" fill="#111827">• Java Tool Installer: JDK 21</text>
+  <text x="624" y="252" font-size="14" fill="#111827">• Maven: compila (goal package)</text>
   <text x="624" y="278" font-size="14" fill="#111827">• Executa os testes (JUnit + Mockito)</text>
-  <text x="624" y="304" font-size="14" fill="#111827">• Publica o resultado dos testes</text>
-  <text x="624" y="330" font-size="14" fill="#111827">• Gera e publica o artefato app.jar</text>
-  <text x="624" y="360" font-size="12" fill="#6B7280">Gatilho: todo push na branch master</text>
+  <text x="624" y="304" font-size="14" fill="#111827">• Publica os resultados JUnit</text>
+  <text x="624" y="330" font-size="14" fill="#111827">• Copy Files + Publish Artifact (app)</text>
+  <text x="624" y="360" font-size="12" fill="#6B7280">Trigger: continuous integration na master</text>
 
   <rect x="980" y="196" width="150" height="120" rx="12" fill="#FFF7E6" stroke="#D97706" stroke-width="1.5"/>
   <rect x="1032" y="214" width="46" height="38" rx="4" fill="#D97706"/>
   <path d="M1032,226 h46 M1055,214 v12" stroke="#FFF7E6" stroke-width="2"/>
   <text x="1055" y="276" font-size="15" font-weight="700" fill="#92400E" text-anchor="middle">Artefato</text>
-  <text x="1055" y="298" font-size="13" fill="#92400E" text-anchor="middle">clyvo-elo-painel</text>
+  <text x="1055" y="298" font-size="13" fill="#92400E" text-anchor="middle">app · app.jar</text>
 
   <rect x="1166" y="146" width="374" height="140" rx="12" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.5"/>
-  <text x="1186" y="174" font-size="17" font-weight="700" fill="#0B4A8B">Pipeline CD · clyvo-elo-cd</text>
-  <text x="1186" y="196" font-size="13" fill="#6B7280">azure-pipelines-cd.yml · ambiente “producao”</text>
-  <text x="1186" y="224" font-size="14" fill="#111827">• Baixa o artefato do CI</text>
-  <text x="1186" y="248" font-size="14" fill="#111827">• Configura as variáveis do Web App</text>
-  <text x="1186" y="272" font-size="14" fill="#111827">• Faz o deploy do app.jar</text>
+  <text x="1186" y="174" font-size="17" font-weight="700" fill="#0B4A8B">Release (CD) · ClyvoElo-CD</text>
+  <text x="1186" y="196" font-size="13" fill="#6B7280">stage Producao · raio do CD ativado</text>
+  <text x="1186" y="224" font-size="14" fill="#111827">• Recebe o artefato novo do CI</text>
+  <text x="1186" y="248" font-size="14" fill="#111827">• App settings com os dados do banco</text>
+  <text x="1186" y="272" font-size="14" fill="#111827">• Azure App Service deploy (Zip Deploy)</text>
 
   <rect x="1166" y="300" width="374" height="76" rx="12" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.5"/>
   <rect x="1184" y="322" width="22" height="18" rx="3" fill="#BE185D"/>
   <path d="M1188,322 v-6 a7,7 0 0 1 14,0 v6" stroke="#BE185D" stroke-width="3" fill="none"/>
-  <text x="1218" y="332" font-size="15" font-weight="700" fill="#831843">Library · clyvo-elo-segredos</text>
-  <text x="1218" y="354" font-size="13" fill="#831843">URL, usuário e senha do banco (secretas)</text>
-  <text x="1218" y="370" font-size="12" fill="#9D174D">+ Service connection clyvo-elo-azure</text>
+  <text x="1218" y="332" font-size="15" font-weight="700" fill="#831843">Variables (Build e Release)</text>
+  <text x="1218" y="354" font-size="13" fill="#831843">SPRING_DATASOURCE_URL, _USERNAME e</text>
+  <text x="1218" y="370" font-size="12" fill="#9D174D">_PASSWORD (cadeado: secreta)</text>
 
   <rect x="580" y="450" width="980" height="420" rx="16" fill="#F0F9FF" stroke="#0078D4" stroke-width="2" stroke-dasharray="8 6"/>
   <text x="604" y="482" font-size="20" font-weight="700" fill="#0B4A8B">Microsoft Azure</text>
@@ -146,7 +146,7 @@
     <circle cx="1097" cy="640" r="14" fill="#E4572E"/><text x="1097" y="645">8</text>
     <circle cx="457" cy="690" r="14" fill="#3F8F68"/><text x="457" y="695">9</text>
   </g>
-  <text x="1170" y="412" font-size="13" font-weight="600" fill="#1F2937">deploy do app.jar pela service connection</text>
+  <text x="1170" y="412" font-size="13" font-weight="600" fill="#1F2937">deploy do app.jar na assinatura do Azure</text>
   <text x="1060" y="628" font-size="13" font-weight="600" fill="#1F2937" text-anchor="middle">JDBC + SSL</text>
   <text x="400" y="682" font-size="13" font-weight="600" fill="#3F8F68" text-anchor="middle">HTTPS</text>
   <text x="500" y="682" font-size="13" font-weight="600" fill="#3F8F68">CRUD</text>
@@ -155,13 +155,13 @@
   <text x="64" y="932" font-size="17" font-weight="700" fill="#111827">Ordem do fluxo</text>
   <g font-size="14" fill="#111827">
     <text x="64" y="962"><tspan font-weight="700">0.</tspan> O desenvolvedor cria os recursos no Azure com o Azure CLI (uma vez).</text>
-    <text x="64" y="990"><tspan font-weight="700">1.</tspan> O desenvolvedor altera o código na IDE e faz push na branch master do GitHub.</text>
-    <text x="64" y="1018"><tspan font-weight="700">2.</tspan> O push dispara automaticamente a Pipeline CI no Azure DevOps.</text>
-    <text x="64" y="1046"><tspan font-weight="700">3.</tspan> O CI configura o Java 21, compila com Maven e executa os testes automatizados.</text>
+    <text x="64" y="990"><tspan font-weight="700">1.</tspan> O desenvolvedor altera o código e faz push na master (GitHub e Azure Repos).</text>
+    <text x="64" y="1018"><tspan font-weight="700">2.</tspan> O push no Azure Repos dispara automaticamente o Build (CI).</text>
+    <text x="64" y="1046"><tspan font-weight="700">3.</tspan> O CI instala o JDK 21, compila com Maven e executa os testes automatizados.</text>
     <text x="64" y="1074"><tspan font-weight="700">4.</tspan> O CI gera o app.jar e publica o artefato no Azure DevOps.</text>
-    <text x="820" y="962"><tspan font-weight="700">5.</tspan> O novo artefato dispara automaticamente a Pipeline CD.</text>
-    <text x="820" y="990"><tspan font-weight="700">6.</tspan> O CD lê os segredos protegidos da Library (dados do banco).</text>
-    <text x="820" y="1018"><tspan font-weight="700">7.</tspan> O CD configura o Web App e faz o deploy do app.jar.</text>
+    <text x="820" y="962"><tspan font-weight="700">5.</tspan> O novo artefato dispara automaticamente a Release (CD).</text>
+    <text x="820" y="990"><tspan font-weight="700">6.</tspan> A Release lê os dados do banco nas variáveis secretas.</text>
+    <text x="820" y="1018"><tspan font-weight="700">7.</tspan> A Release configura o Web App e faz o deploy do app.jar.</text>
     <text x="820" y="1046"><tspan font-weight="700">8.</tspan> O Web App sobe, o Flyway atualiza o PostgreSQL e os dados são gravados nele.</text>
     <text x="820" y="1074"><tspan font-weight="700">9.</tspan> Administrador, veterinário e tutor acessam por HTTPS e fazem o CRUD.</text>
   </g>

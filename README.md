@@ -2,7 +2,7 @@
 
 Entrega da disciplina de **DevOps Tools & Cloud Computing (Sprint 4)** do Challenge FIAP 2026, proposto pela **CLYVO VET**.
 
-O painel web do CLYVO Elo, feito em **Spring Boot**, é publicado no **Azure Web App** e usa o **Azure Database for PostgreSQL** como banco em nuvem. Uma pipeline de **CI** compila, testa e publica o artefato. Uma pipeline de **CD** faz o deploy automático a cada artefato novo. As duas rodam no **Azure DevOps**.
+O painel web do CLYVO Elo, feito em **Spring Boot**, é publicado no **Azure Web App** e usa o **Azure Database for PostgreSQL** como banco em nuvem. No **Azure DevOps**, um Build de **CI** compila, testa e publica o artefato a cada push, e uma Release de **CD** faz o deploy automático a cada artefato novo.
 
 | | |
 |---|---|
@@ -51,8 +51,8 @@ As tabelas centrais da solução são **tutor → pet → evento clínico / aler
 | Build | Maven |
 | Nuvem | Azure App Service: Plano Linux B1 e Web App Java 21 (Java SE), sem container |
 | Infraestrutura | Azure CLI (Cloud Shell), em `scripts/criar-recursos.sh` |
-| CI/CD | Azure DevOps: Pipelines YAML, Library (Variable group), Service connection e Environments |
-| Código-fonte | GitHub, branch `master` |
+| CI/CD | Azure DevOps: Azure Repos, Build e Release no editor clássico, variáveis secretas |
+| Código-fonte | GitHub, importado no Azure Repos, branch `master` |
 
 ---
 
@@ -63,13 +63,13 @@ As tabelas centrais da solução são **tutor → pet → evento clínico / aler
 | Nº | Etapa | Onde acontece |
 |---|---|---|
 | 0 | Criação dos recursos no Azure (uma vez) | Azure CLI no Cloud Shell |
-| 1 | O desenvolvedor altera o código e faz push na `master` | IDE e GitHub |
-| 2 | O push dispara a pipeline de CI | Azure DevOps, pipeline `clyvo-elo-ci` |
-| 3 | O CI configura o Java 21, compila com Maven e roda os testes | Agente Ubuntu do Azure Pipelines |
-| 4 | O CI publica o resultado dos testes e o artefato `app.jar` | Azure DevOps (aba Tests e Artifacts) |
-| 5 | O artefato novo dispara a pipeline de CD | Azure DevOps, pipeline `clyvo-elo-cd` |
-| 6 | O CD lê os dados do banco nas variáveis secretas | Library, Variable group `clyvo-elo-segredos` |
-| 7 | O CD configura o Web App e faz o deploy do `app.jar` | Service connection `clyvo-elo-azure` e Azure Web App |
+| 1 | O desenvolvedor altera o código e faz push na `master` | IDE, GitHub e Azure Repos |
+| 2 | O push no Azure Repos dispara o Build (CI) | Azure Pipelines, pipeline `ClyvoElo-Maven-CI` |
+| 3 | O CI instala o JDK 21, compila com Maven e roda os testes | Agente `ubuntu-latest` do Azure Pipelines |
+| 4 | O CI publica o resultado dos testes e o artefato `app` com o `app.jar` | Azure DevOps (abas Tests e Artifacts) |
+| 5 | O artefato novo dispara a Release (CD) | Azure Pipelines → Releases, `ClyvoElo-CD` |
+| 6 | A Release lê os dados do banco nas variáveis secretas | Aba Variables da Release |
+| 7 | A Release configura o Web App e faz o deploy do `app.jar` | Task Azure App Service deploy e Azure Web App |
 | 8 | O Web App sobe e o Flyway atualiza o banco | Azure Web App e Azure Database for PostgreSQL |
 | 9 | Os usuários acessam por HTTPS e fazem o CRUD | Navegador |
 
@@ -78,14 +78,13 @@ As tabelas centrais da solução são **tutor → pet → evento clínico / aler
 ## 3. Estrutura do repositório
 
 ```
-azure-pipelines-ci.yml     pipeline de CI: build, testes e artefato
-azure-pipelines-cd.yml     pipeline de CD: deploy no Azure Web App
 script_bd.sql              DDL das tabelas com comentários
 scripts/
   criar-recursos.sh        criação dos recursos no Azure com Azure CLI
   excluir-recursos.sh      remoção dos recursos ao final
   consultas-crud.sql       SELECTs usados para comprovar o CRUD no banco
 docs/arquitetura.png       diagrama da arquitetura e do fluxo CI/CD
+pom.xml                    build Maven (gera target/app.jar)
 src/main/java              aplicação Spring Boot
 src/main/resources/db/migration   migrações Flyway (as mesmas tabelas do script_bd.sql)
 src/test/java              testes automatizados executados no CI
@@ -113,33 +112,46 @@ src/test/java              testes automatizados executados no CI
 
 ## 5. Pipelines
 
-### CI — `azure-pipelines-ci.yml` (pipeline `clyvo-elo-ci`)
+As pipelines são montadas no **editor clássico** do Azure Pipelines: um **Build** para o CI e uma **Release** para o CD. O código fica no **Azure Repos**, importado deste repositório do GitHub, na branch `master`.
 
-- **Gatilho:** todo push na branch `master`.
-- **Agente:** `ubuntu-latest`, hospedado pela Microsoft.
+### CI — Build `ClyvoElo-Maven-CI`
 
-| Etapa | O que faz |
+- **Origem:** Azure Repos Git, repositório `clyvo-elo-devops`, branch `master`.
+- **Agente:** pool Azure Pipelines, `ubuntu-latest`.
+- **Trigger:** *Enable continuous integration* na branch `master`. Todo push dispara o build.
+
+| Task | Configuração | O que faz |
+|---|---|---|
+| Java tool installer | JDK 21, x64, Pre-installed | Deixa o agente com o Java 21 que o projeto usa |
+| Maven | POM `pom.xml`, goal `package`, JUnit `**/surefire-reports/TEST-*.xml`, título *Testes do painel CLYVO Elo* | Compila, executa os testes automatizados e empacota o `app.jar`. Se um teste falhar, o build para |
+| Copy Files | Contents `**/target/app.jar`, Target `$(build.artifactstagingdirectory)` | Separa o pacote da aplicação |
+| Publish Artifact | Path `$(build.artifactstagingdirectory)`, artifact name `app` | Publica o artefato no Azure DevOps |
+
+### CD — Release `ClyvoElo-CD`
+
+- **Template:** Azure App Service deployment, stage **Producao**.
+- **Artefato:** Build `ClyvoElo-Maven-CI`, versão Latest, com o **Continuous deployment trigger** (raio) ativado. Cada artefato novo gera uma Release.
+- **Agente:** pool Azure Pipelines, `ubuntu-latest`.
+
+| Configuração da task Azure App Service deploy | Valor |
 |---|---|
-| Configura o Java 21 | Seleciona o JDK 21 do agente |
-| Compila e executa os testes automatizados | `mvn clean package`: compila e roda os testes JUnit. Se um teste falhar, a pipeline para e nada é publicado |
-| Publica o resultado dos testes | Os relatórios do Surefire vão para a aba **Tests** da execução |
-| Separa o pacote e renomeia para `app.jar` | Copia o `.jar` gerado para a área de artefatos |
-| Publica o artefato no Azure DevOps | Publica o artefato `clyvo-elo-painel` na execução |
-
-### CD — `azure-pipelines-cd.yml` (pipeline `clyvo-elo-cd`)
-
-- **Gatilho:** conclusão com sucesso do `clyvo-elo-ci` na `master`, ou seja, um artefato novo (`resources.pipelines` com `trigger`).
-- **Ambiente:** `producao`, onde o Azure DevOps guarda o histórico de deploys.
-
-| Etapa | O que faz |
-|---|---|
-| Baixa o artefato gerado pelo CI | Baixa o `app.jar` da execução de CI que disparou o CD |
-| Configura as variáveis de ambiente do Web App | Grava no Web App a URL, o usuário e a senha do banco, lidos das variáveis secretas |
-| Faz o deploy do `app.jar` no Web App | Publica o pacote no Web App Java 21 pela service connection |
+| Azure subscription | a assinatura, autorizada pelo botão **Authorize** |
+| App type | Web App on Linux |
+| App Service name | `clyvo-elo-rm563230` |
+| Package or folder | `$(System.DefaultWorkingDirectory)/**/*.jar` |
+| Startup command | `java -jar /home/site/wwwroot/app.jar` |
+| App settings | `-SPRING_DATASOURCE_URL "$(SPRING_DATASOURCE_URL)" -SPRING_DATASOURCE_USERNAME "$(SPRING_DATASOURCE_USERNAME)" -SPRING_DATASOURCE_PASSWORD "$(SPRING_DATASOURCE_PASSWORD)"` |
+| Deployment method | Zip Deploy |
 
 ### Variáveis protegidas
 
-Nenhum usuário, senha ou token fica no código. Os dados do banco ficam no Variable group **`clyvo-elo-segredos`** (Pipelines → Library), com a senha marcada como **secreta**: ela aparece como `***` nos logs. O acesso ao Azure é feito pela **service connection** `clyvo-elo-azure`, sem credencial no repositório. No código, a aplicação lê as variáveis de ambiente `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD`.
+Nenhum usuário, senha ou token fica no código. Os dados do banco ficam na aba **Variables** do Build e da Release, com a senha marcada pelo **cadeado** como secreta: ela aparece como `***` nos logs. A Release repassa esses valores ao Web App pelas **App settings**. A aplicação lê as variáveis de ambiente `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD`.
+
+| Variável | Valor | Secreta |
+|---|---|---|
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://pg-clyvo-elo-rm563230.postgres.database.azure.com:5432/clyvoelo?sslmode=require` | Não |
+| `SPRING_DATASOURCE_USERNAME` | `clyvoadmin` | Não |
+| `SPRING_DATASOURCE_PASSWORD` | senha do banco | **Sim** |
 
 ---
 
@@ -149,17 +161,19 @@ Nenhum usuário, senha ou token fica no código. Os dados do banco ficam no Vari
 
 - Assinatura do Azure ativa (por exemplo, Azure for Students)
 - Organização no Azure DevOps com execução de pipelines liberada
-- Conta no GitHub com acesso a este repositório
+- Conta no GitHub
 
 ### 6.2 Criar os recursos no Azure (Azure CLI)
 
 No [Portal do Azure](https://portal.azure.com), abra o **Cloud Shell** em modo **Bash** e rode:
 
 ```bash
+az account show
 git clone https://github.com/GabrielCabralmm/clyvo-elo-devops.git
-cd clyvo-elo-devops
+cd clyvo-elo-devops/scripts
+chmod +x criar-recursos.sh
 export MEU_IP=<seu IP público, para consultar o banco do seu computador>
-bash scripts/criar-recursos.sh
+./criar-recursos.sh
 ```
 
 O script pede a senha do administrador do banco e cria, em ordem:
@@ -176,34 +190,63 @@ O script pede a senha do administrador do banco e cria, em ordem:
 
 Para usar outra região, rode `export LOCAL=eastus2` antes do script. O padrão é `brazilsouth`.
 
-### 6.3 Configurar o Azure DevOps
+### 6.3 Criar o projeto no Azure DevOps
 
-1. **Criar o projeto:** em Azure DevOps → **New project**:
+1. Em **Organization settings → Pipelines → Settings**, deixe **desligadas** as opções *Disable creation of classic build pipelines* e *Disable creation of classic release pipelines*.
+2. Em **New project**:
    - **Project name:** `Sprint 4 – Azure DevOps`
    - **Description:** `Projeto para entrega da Sprint 4 do professor <nome do professor>` e, nas linhas seguintes, `RM563230 - Gabriel Cabral Mendes Mariano - 2TDSPO` e `RM566063 - João Victor Santana dos Santos - 2TDSPX`
    - **Visibility:** Private · **Version control:** Git · **Work item process:** Scrum
-2. **Convidar o professor:** em Organization settings → **Users** → **Add users**, coloque o e-mail do professor com **Access level: Basic** e adicione-o ao projeto como **Contributor**.
-3. **Service connection:** em Project settings → **Service connections** → **New** → **Azure Resource Manager** → **Workload Identity federation (automatic)**:
-   - **Subscription:** a sua assinatura · **Resource group:** `rg-clyvo-elo`
-   - **Name:** `clyvo-elo-azure`
-   - Marque **Grant access permission to all pipelines**.
-4. **Variáveis protegidas:** em Pipelines → **Library** → **+ Variable group**:
-   - **Nome:** `clyvo-elo-segredos`
-   - `SPRING_DATASOURCE_URL` = `jdbc:postgresql://pg-clyvo-elo-rm563230.postgres.database.azure.com:5432/clyvoelo?sslmode=require`
-   - `SPRING_DATASOURCE_USERNAME` = `clyvoadmin`
-   - `SPRING_DATASOURCE_PASSWORD` = a senha do banco, com o **cadeado** clicado para ficar secreta
-   - Em **Pipeline permissions**, libere o grupo para as pipelines (ou autorize na primeira execução).
-5. **Pipeline de CI:** Pipelines → **New pipeline** → **GitHub (YAML)** → este repositório → **Existing Azure Pipelines YAML file** → `/azure-pipelines-ci.yml` → **Save**. Depois, em **⋮ → Rename/move**, use o nome **`clyvo-elo-ci`**.
-6. **Pipeline de CD:** repita o passo 5 com `/azure-pipelines-cd.yml` e o nome **`clyvo-elo-cd`**. O nome do CI precisa ser exatamente `clyvo-elo-ci`, porque é ele que dispara o CD.
-7. **Primeira execução:** rode o `clyvo-elo-ci`. Ao terminar, o `clyvo-elo-cd` começa sozinho. Na primeira vez, clique em **Permit** para liberar o Variable group, a service connection e o ambiente `producao`.
+3. **Importar o código:** em Repos → Files → **Import repository**, escolha o tipo Git e a Clone URL `https://github.com/GabrielCabralmm/clyvo-elo-devops.git`.
+4. **Convidar o professor:** em Organization settings → **Users** → **Add users**, coloque o e-mail do professor com **Access level: Basic** e adicione-o ao projeto `Sprint 4 – Azure DevOps` no grupo **Contributors**.
 
-### 6.4 Testar a esteira
+### 6.4 Criar o Build (CI)
 
-1. Altere um texto visível no código, por exemplo o título da tela de login em `src/main/resources/templates/login.html`.
-2. Faça `git commit` e `git push` na `master`.
-3. Em Pipelines, o `clyvo-elo-ci` inicia sozinho. Confira os testes na aba **Tests** e o artefato `clyvo-elo-painel` em **Artifacts**.
-4. Ao terminar o CI, o `clyvo-elo-cd` inicia sozinho e faz o deploy.
-5. Acesse https://clyvo-elo-rm563230.azurewebsites.net/login e confira a alteração. A primeira resposta depois do deploy pode levar cerca de 1 minuto.
+1. Pipelines → **Create Pipeline** → **Use the classic editor**.
+2. Source **Azure Repos Git**, repositório `clyvo-elo-devops`, branch `master` → **Continue**.
+3. Template **Maven** → **Apply**.
+4. Name `ClyvoElo-Maven-CI`, Agent pool **Azure Pipelines**, Agent specification **ubuntu-latest**.
+5. No **Agent job 1**, clique em **+**, adicione a task **Java tool installer** e arraste-a para antes da task Maven. Configure **JDK version 21**, **x64** e **Pre-installed**.
+6. Task **Maven**: POM `pom.xml`, goal `package`, marque *Publish to Azure Pipelines* com Test results files `**/surefire-reports/TEST-*.xml` e título `Testes do painel CLYVO Elo`. Em **JDK version**, deixe **Default**, que usa o JDK 21 instalado no passo anterior.
+7. Task **Copy Files**: Contents `**/target/app.jar`, Target Folder `$(build.artifactstagingdirectory)`.
+8. Task **Publish Artifact**: Path `$(build.artifactstagingdirectory)`, Artifact name `app`.
+9. Aba **Variables**: crie `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` e `SPRING_DATASOURCE_PASSWORD`, com o cadeado na senha.
+10. Aba **Triggers**: marque **Enable continuous integration** com a branch `master`.
+11. **Save & queue** → comentário `Criação do primeiro CI`, branch `master` → **Save and run**. Confira o build com **Success**, a aba **Tests** e o artefato `app`.
+
+### 6.5 Criar a Release (CD)
+
+1. Pipelines → **Releases** → **New pipeline** → template **Azure App Service deployment** → **Apply**.
+2. Nome da pipeline `ClyvoElo-CD` e nome do stage `Producao`.
+3. **Add an artifact:** Source type Build, projeto `Sprint 4 – Azure DevOps`, source `ClyvoElo-Maven-CI`, versão Latest → **Add**.
+4. Clique no **raio** do artefato e ative o **Continuous deployment trigger**. Deixe o *Pull request trigger* desligado.
+5. No stage, clique em **1 job, 1 task**:
+   - **Azure subscription:** escolha a assinatura e clique em **Authorize**
+   - **App type:** Web App on Linux · **App service name:** `clyvo-elo-rm563230`
+   - **Agent job:** pool Azure Pipelines, `ubuntu-latest`
+6. Task **Deploy Azure App Service**:
+   - **Package or folder:** `$(System.DefaultWorkingDirectory)/**/*.jar`
+   - **Startup command:** `java -jar /home/site/wwwroot/app.jar`
+   - **Application and Configuration Settings → App settings:** cole em uma linha `-SPRING_DATASOURCE_URL "$(SPRING_DATASOURCE_URL)" -SPRING_DATASOURCE_USERNAME "$(SPRING_DATASOURCE_USERNAME)" -SPRING_DATASOURCE_PASSWORD "$(SPRING_DATASOURCE_PASSWORD)"`
+   - **Additional Deployment Options → Deployment method:** Zip Deploy, se a opção aparecer
+7. Aba **Variables** da Release: crie as mesmas três variáveis, com o cadeado na senha.
+8. **Save** e depois **Create release** → descrição `Deploy em Producao` → **Create**. Acompanhe os logs do stage até o **Succeeded**.
+9. Abra https://clyvo-elo-rm563230.azurewebsites.net. O primeiro acesso depois do deploy pode levar cerca de 1 minuto.
+
+### 6.6 Testar a esteira completa
+
+1. No computador, clone o repositório e configure o push para o GitHub e para o Azure Repos ao mesmo tempo:
+   ```bash
+   git clone https://github.com/GabrielCabralmm/clyvo-elo-devops.git
+   cd clyvo-elo-devops
+   git remote set-url --add --push origin https://github.com/GabrielCabralmm/clyvo-elo-devops.git
+   git remote set-url --add --push origin <URL de clone do Azure Repos>
+   ```
+2. Altere um texto visível, por exemplo o título da tela de login em `src/main/resources/templates/login.html`.
+3. `git commit -am "Altera o título da tela de login"` e `git push`.
+4. Em Pipelines, o `ClyvoElo-Maven-CI` inicia sozinho. Confira os testes na aba **Tests** e o artefato `app`.
+5. Ao terminar o CI, uma nova Release do `ClyvoElo-CD` é criada sozinha e faz o deploy.
+6. Abra a aplicação no Web App e confira o novo título.
 
 ---
 
@@ -249,4 +292,4 @@ Acesse http://localhost:8080. Para rodar só os testes, use `mvn test`.
 
 ## 9. Remover os recursos
 
-Depois da avaliação, rode `bash scripts/excluir-recursos.sh` no Cloud Shell para apagar o grupo de recursos e parar a cobrança.
+Depois da avaliação, rode `./excluir-recursos.sh` na pasta `scripts`, no Cloud Shell, para apagar o grupo de recursos e parar a cobrança.
