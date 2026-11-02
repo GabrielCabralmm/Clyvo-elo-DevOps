@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1140" viewBox="0 0 1600 1140" font-family="Inter, DejaVu Sans, sans-serif">
+  <defs>
+    <marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1F2937"/>
+    </marker>
+    <marker id="setaVerde" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3F8F68"/>
+    </marker>
+    <g id="pessoa">
+      <circle cx="0" cy="-14" r="11" fill="#3F8F68"/>
+      <path d="M-20,22 Q-20,0 0,0 Q20,0 20,22 z" fill="#3F8F68"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="1140" fill="#FFFFFF"/>
+
+  <text x="40" y="44" font-size="28" font-weight="700" fill="#111827">CLYVO Elo — Arquitetura da solução e esteira CI/CD</text>
+  <text x="40" y="72" font-size="16" fill="#4B5563">Painel da clínica (Spring Boot) publicado no Azure Web App com banco Azure Database for PostgreSQL, entregue por pipelines do Azure DevOps</text>
+
+  <rect x="40" y="110" width="250" height="190" rx="14" fill="#ECF6F0" stroke="#3F8F68" stroke-width="2"/>
+  <use href="#pessoa" x="80" y="160"/>
+  <text x="112" y="152" font-size="18" font-weight="700" fill="#111827">Desenvolvedor</text>
+  <text x="112" y="174" font-size="14" fill="#374151">Gabriel / João</text>
+  <rect x="58" y="200" width="214" height="82" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/>
+  <text x="72" y="224" font-size="15" font-weight="600" fill="#111827">IDE (IntelliJ / VS Code)</text>
+  <text x="72" y="246" font-size="13" fill="#374151">Java 21 + Maven</text>
+  <text x="72" y="266" font-size="13" fill="#374151">git commit / git push</text>
+
+  <rect x="340" y="110" width="190" height="190" rx="14" fill="#F3F4F6" stroke="#111827" stroke-width="2"/>
+  <circle cx="372" cy="146" r="16" fill="#111827"/>
+  <path d="M366,140 a6,6 0 1 0 0.1,0 M378,140 v14 M366,146 v8" stroke="#FFFFFF" stroke-width="2.5" fill="none"/>
+  <text x="396" y="152" font-size="18" font-weight="700" fill="#111827">GitHub</text>
+  <text x="358" y="190" font-size="14" fill="#374151">Repositório</text>
+  <text x="358" y="210" font-size="14" font-weight="600" fill="#111827">clyvo-elo-devops</text>
+  <text x="358" y="236" font-size="14" fill="#374151">Branch</text>
+  <rect x="410" y="222" width="70" height="22" rx="11" fill="#111827"/>
+  <text x="445" y="238" font-size="13" font-weight="600" fill="#FFFFFF" text-anchor="middle">master</text>
+  <text x="358" y="272" font-size="13" fill="#6B7280">código + YAML do CI/CD</text>
+
+  <rect x="580" y="96" width="980" height="300" rx="16" fill="#EFF6FF" stroke="#0078D4" stroke-width="2"/>
+  <text x="604" y="128" font-size="20" font-weight="700" fill="#0B4A8B">Azure DevOps</text>
+  <text x="770" y="128" font-size="14" fill="#1E3A5F">Projeto “Sprint 4 – Azure DevOps” · Boards · Pipelines · Library · Environments</text>
+
+  <rect x="604" y="146" width="340" height="230" rx="12" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.5"/>
+  <text x="624" y="174" font-size="17" font-weight="700" fill="#0B4A8B">Pipeline CI · clyvo-elo-ci</text>
+  <text x="624" y="196" font-size="13" fill="#6B7280">azure-pipelines-ci.yml · agente ubuntu</text>
+  <text x="624" y="226" font-size="14" fill="#111827">• Configura o Java 21</text>
+  <text x="624" y="252" font-size="14" fill="#111827">• Maven: compila o projeto</text>
+  <text x="624" y="278" font-size="14" fill="#111827">• Executa os testes (JUnit + Mockito)</text>
+  <text x="624" y="304" font-size="14" fill="#111827">• Publica o resultado dos testes</text>
+  <text x="624" y="330" font-size="14" fill="#111827">• Gera e publica o artefato app.jar</text>
+  <text x="624" y="360" font-size="12" fill="#6B7280">Gatilho: todo push na branch master</text>
+
+  <rect x="980" y="196" width="150" height="120" rx="12" fill="#FFF7E6" stroke="#D97706" stroke-width="1.5"/>
+  <rect x="1032" y="214" width="46" height="38" rx="4" fill="#D97706"/>
+  <path d="M1032,226 h46 M1055,214 v12" stroke="#FFF7E6" stroke-width="2"/>
+  <text x="1055" y="276" font-size="15" font-weight="700" fill="#92400E" text-anchor="middle">Artefato</text>
+  <text x="1055" y="298" font-size="13" fill="#92400E" text-anchor="middle">clyvo-elo-painel</text>
+
+  <rect x="1166" y="146" width="374" height="140" rx="12" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.5"/>
+  <text x="1186" y="174" font-size="17" font-weight="700" fill="#0B4A8B">Pipeline CD · clyvo-elo-cd</text>
+  <text x="1186" y="196" font-size="13" fill="#6B7280">azure-pipelines-cd.yml · ambiente “producao”</text>
+  <text x="1186" y="224" font-size="14" fill="#111827">• Baixa o artefato do CI</text>
+  <text x="1186" y="248" font-size="14" fill="#111827">• Configura as variáveis do Web App</text>
+  <text x="1186" y="272" font-size="14" fill="#111827">• Faz o deploy do app.jar</text>
+
+  <rect x="1166" y="300" width="374" height="76" rx="12" fill="#FDF2F8" stroke="#BE185D" stroke-width="1.5"/>
+  <rect x="1184" y="322" width="22" height="18" rx="3" fill="#BE185D"/>
+  <path d="M1188,322 v-6 a7,7 0 0 1 14,0 v6" stroke="#BE185D" stroke-width="3" fill="none"/>
+  <text x="1218" y="332" font-size="15" font-weight="700" fill="#831843">Library · clyvo-elo-segredos</text>
+  <text x="1218" y="354" font-size="13" fill="#831843">URL, usuário e senha do banco (secretas)</text>
+  <text x="1218" y="370" font-size="12" fill="#9D174D">+ Service connection clyvo-elo-azure</text>
+
+  <rect x="580" y="450" width="980" height="420" rx="16" fill="#F0F9FF" stroke="#0078D4" stroke-width="2" stroke-dasharray="8 6"/>
+  <text x="604" y="482" font-size="20" font-weight="700" fill="#0B4A8B">Microsoft Azure</text>
+  <text x="772" y="482" font-size="14" fill="#1E3A5F">Assinatura · Grupo de recursos rg-clyvo-elo</text>
+
+  <rect x="604" y="506" width="430" height="250" rx="12" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.5"/>
+  <text x="624" y="534" font-size="14" font-weight="600" fill="#1E3A5F">Plano do Serviço de Aplicativo · plan-clyvo-elo (Linux B1)</text>
+  <rect x="624" y="550" width="390" height="186" rx="10" fill="#E0F2FE" stroke="#0369A1"/>
+  <rect x="644" y="572" width="44" height="34" rx="4" fill="#0078D4"/>
+  <path d="M644,582 h44" stroke="#FFFFFF" stroke-width="2"/>
+  <circle cx="651" cy="577" r="2" fill="#FFFFFF"/><circle cx="658" cy="577" r="2" fill="#FFFFFF"/>
+  <text x="702" y="586" font-size="17" font-weight="700" fill="#0B4A8B">Web App · clyvo-elo-rm563230</text>
+  <text x="702" y="606" font-size="13" fill="#1E3A5F">Java 21 (Java SE) · sem container</text>
+  <text x="644" y="640" font-size="14" fill="#111827">• Spring Boot 4 + Thymeleaf + Spring Security</text>
+  <text x="644" y="664" font-size="14" fill="#111827">• Perfis: Administrador, Veterinário, Tutor</text>
+  <text x="644" y="688" font-size="14" fill="#111827">• Flyway cria e versiona as tabelas</text>
+  <text x="644" y="712" font-size="14" fill="#111827">• HTTPS · Always On · logs no App Service</text>
+
+  <rect x="1180" y="506" width="356" height="250" rx="12" fill="#FFFFFF" stroke="#0078D4" stroke-width="1.5"/>
+  <ellipse cx="1226" cy="550" rx="26" ry="9" fill="#336791"/>
+  <rect x="1200" y="550" width="52" height="40" fill="#336791"/>
+  <ellipse cx="1226" cy="590" rx="26" ry="9" fill="#336791"/>
+  <ellipse cx="1226" cy="550" rx="26" ry="9" fill="#5B8DB8"/>
+  <text x="1266" y="556" font-size="17" font-weight="700" fill="#0B4A8B">Azure Database</text>
+  <text x="1266" y="578" font-size="17" font-weight="700" fill="#0B4A8B">for PostgreSQL</text>
+  <text x="1200" y="626" font-size="13" fill="#1E3A5F">Flexible Server · PaaS · versão 16</text>
+  <text x="1200" y="650" font-size="14" fill="#111827">pg-clyvo-elo-rm563230</text>
+  <text x="1200" y="674" font-size="14" fill="#111827">Banco clyvoelo · SSL obrigatório</text>
+  <text x="1200" y="698" font-size="14" fill="#111827">tutores, pets, eventos clínicos,</text>
+  <text x="1200" y="718" font-size="14" fill="#111827">alertas, funcionários</text>
+
+  <rect x="604" y="780" width="932" height="70" rx="12" fill="#FFFFFF" stroke="#6B7280" stroke-width="1.5"/>
+  <rect x="624" y="798" width="40" height="32" rx="4" fill="#1F2937"/>
+  <path d="M632,808 l8,6 l-8,6 M644,822 h12" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+  <text x="680" y="810" font-size="16" font-weight="700" fill="#111827">Azure CLI (Cloud Shell) · scripts/criar-recursos.sh</text>
+  <text x="680" y="832" font-size="14" fill="#374151">cria o grupo de recursos, o PostgreSQL, o banco, o firewall, o plano, o Web App e as configurações</text>
+
+  <rect x="40" y="560" width="250" height="250" rx="14" fill="#ECF6F0" stroke="#3F8F68" stroke-width="2"/>
+  <text x="60" y="592" font-size="18" font-weight="700" fill="#111827">Usuários finais</text>
+  <text x="60" y="612" font-size="13" fill="#4B5563">navegador · HTTPS</text>
+  <use href="#pessoa" x="82" y="660"/>
+  <text x="112" y="666" font-size="15" fill="#111827">Administrador</text>
+  <use href="#pessoa" x="82" y="716"/>
+  <text x="112" y="722" font-size="15" fill="#111827">Veterinário</text>
+  <use href="#pessoa" x="82" y="772"/>
+  <text x="112" y="778" font-size="15" fill="#111827">Tutor</text>
+
+  <rect x="340" y="330" width="190" height="106" rx="14" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1.5"/>
+  <text x="358" y="358" font-size="16" font-weight="700" fill="#111827">Professor</text>
+  <text x="358" y="382" font-size="13" fill="#374151">Acesso Basic ao projeto</text>
+  <text x="358" y="400" font-size="13" fill="#374151">do Azure DevOps: Repos,</text>
+    <text x="358" y="418" font-size="13" fill="#374151">Pipelines e execuções</text>
+
+  <path d="M290,240 H340" stroke="#1F2937" stroke-width="2.5" fill="none" marker-end="url(#seta)"/>
+  <path d="M530,205 H604" stroke="#1F2937" stroke-width="2.5" fill="none" marker-end="url(#seta)"/>
+  <path d="M944,256 H980" stroke="#1F2937" stroke-width="2.5" fill="none" marker-end="url(#seta)"/>
+  <path d="M1130,226 H1166" stroke="#1F2937" stroke-width="2.5" fill="none" marker-end="url(#seta)"/>
+  <path d="M1353,300 V286" stroke="#BE185D" stroke-width="2.5" fill="none" marker-end="url(#seta)"/>
+  <path d="M1540,216 H1550 V420 H1150 V590 H1014" stroke="#1F2937" stroke-width="2.5" fill="none" marker-end="url(#seta)"/>
+  <path d="M1014,640 H1180" stroke="#1F2937" stroke-width="2.5" fill="none" marker-end="url(#seta)"/>
+  <path d="M290,690 H624" stroke="#3F8F68" stroke-width="3" fill="none" marker-end="url(#setaVerde)"/>
+  <path d="M290,285 H315 V815 H604" stroke="#6B7280" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#seta)"/>
+  <path d="M530,380 H580" stroke="#9CA3AF" stroke-width="2" stroke-dasharray="4 4" fill="none" marker-end="url(#seta)"/>
+
+  <g font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">
+    <circle cx="460" cy="815" r="14" fill="#6B7280"/><text x="460" y="820">0</text>
+    <circle cx="315" cy="240" r="14" fill="#E4572E"/><text x="315" y="245">1</text>
+    <circle cx="567" cy="205" r="14" fill="#E4572E"/><text x="567" y="210">2</text>
+    <circle cx="604" cy="252" r="14" fill="#E4572E"/><text x="604" y="257">3</text>
+    <circle cx="962" cy="256" r="14" fill="#E4572E"/><text x="962" y="261">4</text>
+    <circle cx="1148" cy="226" r="14" fill="#E4572E"/><text x="1148" y="231">5</text>
+    <circle cx="1353" cy="300" r="14" fill="#E4572E"/><text x="1353" y="305">6</text>
+    <circle cx="1150" cy="500" r="14" fill="#E4572E"/><text x="1150" y="505">7</text>
+    <circle cx="1097" cy="640" r="14" fill="#E4572E"/><text x="1097" y="645">8</text>
+    <circle cx="457" cy="690" r="14" fill="#3F8F68"/><text x="457" y="695">9</text>
+  </g>
+  <text x="1170" y="412" font-size="13" font-weight="600" fill="#1F2937">deploy do app.jar pela service connection</text>
+  <text x="1060" y="628" font-size="13" font-weight="600" fill="#1F2937" text-anchor="middle">JDBC + SSL</text>
+  <text x="400" y="682" font-size="13" font-weight="600" fill="#3F8F68" text-anchor="middle">HTTPS</text>
+  <text x="500" y="682" font-size="13" font-weight="600" fill="#3F8F68">CRUD</text>
+
+  <rect x="40" y="900" width="1520" height="220" rx="14" fill="#F9FAFB" stroke="#E5E7EB"/>
+  <text x="64" y="932" font-size="17" font-weight="700" fill="#111827">Ordem do fluxo</text>
+  <g font-size="14" fill="#111827">
+    <text x="64" y="962"><tspan font-weight="700">0.</tspan> O desenvolvedor cria os recursos no Azure com o Azure CLI (uma vez).</text>
+    <text x="64" y="990"><tspan font-weight="700">1.</tspan> O desenvolvedor altera o código na IDE e faz push na branch master do GitHub.</text>
+    <text x="64" y="1018"><tspan font-weight="700">2.</tspan> O push dispara automaticamente a Pipeline CI no Azure DevOps.</text>
+    <text x="64" y="1046"><tspan font-weight="700">3.</tspan> O CI configura o Java 21, compila com Maven e executa os testes automatizados.</text>
+    <text x="64" y="1074"><tspan font-weight="700">4.</tspan> O CI gera o app.jar e publica o artefato no Azure DevOps.</text>
+    <text x="820" y="962"><tspan font-weight="700">5.</tspan> O novo artefato dispara automaticamente a Pipeline CD.</text>
+    <text x="820" y="990"><tspan font-weight="700">6.</tspan> O CD lê os segredos protegidos da Library (dados do banco).</text>
+    <text x="820" y="1018"><tspan font-weight="700">7.</tspan> O CD configura o Web App e faz o deploy do app.jar.</text>
+    <text x="820" y="1046"><tspan font-weight="700">8.</tspan> O Web App sobe, o Flyway atualiza o PostgreSQL e os dados são gravados nele.</text>
+    <text x="820" y="1074"><tspan font-weight="700">9.</tspan> Administrador, veterinário e tutor acessam por HTTPS e fazem o CRUD.</text>
+  </g>
+</svg>
