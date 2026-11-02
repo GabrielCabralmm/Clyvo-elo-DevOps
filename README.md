@@ -116,7 +116,7 @@ As pipelines são montadas no **editor clássico** do Azure Pipelines: um **Buil
 
 ### CI — Build `ClyvoElo-Maven-CI`
 
-- **Origem:** Azure Repos Git, repositório `clyvo-elo-devops`, branch `master`.
+- **Origem:** Azure Repos Git, repositório do projeto (o importado do GitHub), branch `master`.
 - **Agente:** pool Azure Pipelines, `ubuntu-latest`.
 - **Trigger:** *Enable continuous integration* na branch `master`. Todo push dispara o build.
 
@@ -203,7 +203,7 @@ Para usar outra região, rode `export LOCATION=eastus2` antes do script. O padr�
 ### 6.4 Criar o Build (CI)
 
 1. Pipelines → **Create Pipeline** → **Use the classic editor**.
-2. Source **Azure Repos Git**, repositório `clyvo-elo-devops`, branch `master` → **Continue**.
+2. Source **Azure Repos Git**, repositório do projeto (o importado do GitHub), branch `master` → **Continue**.
 3. Template **Maven** → **Apply**.
 4. Name `ClyvoElo-Maven-CI`, Agent pool **Azure Pipelines**, Agent specification **ubuntu-latest**.
 5. No **Agent job 1**, clique em **+**, adicione a task **Java tool installer** e arraste-a para antes da task Maven. Configure **JDK version 21**, **x64** e **Pre-installed**.
