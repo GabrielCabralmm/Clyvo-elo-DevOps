@@ -7,8 +7,8 @@ O painel web do CLYVO Elo, feito em **Spring Boot**, é publicado no **Azure Web
 | | |
 |---|---|
 | Aplicação | https://clyvo-elo-devops.azurewebsites.net |
-| Azure DevOps | [a preencher] |
-| Vídeo | [a preencher] |
+| Azure DevOps | https://dev.azure.com/ClyvoElo/Sprint%204%20%E2%80%93%20Azure%20DevOps |
+| Vídeo | https://youtu.be/ni5hgIPvHYg |
 
 ## Integrantes
 
